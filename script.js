@@ -431,14 +431,14 @@ function handleKeyboardShortcuts(e) {
     }
 }
 
-// Matrix Background
+// Initialize matrix background
 (function initMatrixBackground() {
     const canvas = document.getElementById('matrix');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const characters = "♡";
+    const characters = "®©";
     const fontSize = 14;
     const columns = canvas.width / fontSize;
     const drops = Array(Math.floor(columns)).fill(1);
@@ -447,7 +447,7 @@ function handleKeyboardShortcuts(e) {
         ctx.fillStyle = 'rgba(15, 15, 15, 0.05)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        ctx.fillStyle = '#ff6b6b'; // Light red color
+        ctx.fillStyle = '#00cec9';
         ctx.font = fontSize + 'px monospace';
 
         for (let i = 0; i < drops.length; i++) {
@@ -462,23 +462,24 @@ function handleKeyboardShortcuts(e) {
     }
 
     setInterval(drawMatrix, 33);
+
     window.addEventListener('resize', () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
     });
 })();
 
-// Particles.js Background
+// Initialize particles.js background
 (function initParticles() {
     if (typeof particlesJS !== 'undefined') {
         particlesJS('particles-js', {
             particles: {
                 number: { value: 60 },
                 size: { value: 2 },
-                color: { value: '#ff6b6b' }, // Light red color
+                color: { value: '#00cec9' },
                 line_linked: {
                     enable: true,
-                    color: '#ff6b6b', // Light red color
+                    color: '#00cec9',
                     opacity: 0.3
                 },
                 move: { enable: true, speed: 1 }
