@@ -438,7 +438,7 @@ function handleKeyboardShortcuts(e) {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const characters = "♡♕";
+    const characters = "♡✈︎";
     const fontSize = 14;
     const columns = canvas.width / fontSize;
     const drops = Array(Math.floor(columns)).fill(1);
