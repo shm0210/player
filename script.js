@@ -144,6 +144,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     // Initialize volume
     videoElement.volume = volumeSlider.value;
+    // Hide native controls immediately
+    videoElement.controls = false;
 });
 
 document.addEventListener('visibilitychange', async () => {
@@ -220,7 +222,7 @@ function loadVideo() {
                 showError("Invalid YouTube link. Please check the URL");
                 return;
             }
-            youtubeIframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`;
+            youtubeIframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
             youtubePlayer.style.display = 'block';
             directVideoPlayer.style.display = 'none';
             progressContainer.style.display = 'none';
@@ -230,9 +232,6 @@ function loadVideo() {
             youtubePlayer.style.display = 'none';
             directVideoPlayer.style.display = 'block';
             downloadButton.style.display = 'inline-block';
-            
-            // Hide native controls when our custom controls are ready
-            videoElement.controls = false;
             
             videoElement.play().catch(e => {
                 showError("Autoplay was blocked. Please click play manually");
@@ -245,7 +244,7 @@ function loadVideo() {
     }, 500);
 }
 
-// Simulate quality options (in a real app, you'd fetch these from the server)
+// Simulate quality options
 function simulateQualityOptions() {
     qualitySelect.innerHTML = '<option value="auto">Auto Quality</option>';
     
@@ -386,49 +385,120 @@ function handleKeyboardShortcuts(e) {
     
     switch(e.code) {
         case 'Space':
-            e.preventDefault();
             if (directVideoPlayer.style.display !== 'none') {
+                e.preventDefault();
                 togglePlayPause();
             }
             break;
         case 'ArrowRight':
             if (directVideoPlayer.style.display !== 'none') {
+                e.preventDefault();
                 videoElement.currentTime += 5;
             }
             break;
         case 'ArrowLeft':
             if (directVideoPlayer.style.display !== 'none') {
+                e.preventDefault();
                 videoElement.currentTime -= 5;
             }
             break;
         case 'KeyF':
+            e.preventDefault();
             toggleFullscreen();
             break;
         case 'KeyP':
+            e.preventDefault();
             if (directVideoPlayer.style.display !== 'none') {
                 togglePiP();
             }
             break;
         case 'KeyD':
+            e.preventDefault();
             if (directVideoPlayer.style.display !== 'none') {
                 downloadVideo();
             }
             break;
         case 'KeyR':
+            e.preventDefault();
             resetPlayer();
             break;
         case 'KeyT':
+            e.preventDefault();
             toggleTheme();
             break;
         case 'KeyM':
+            e.preventDefault();
             if (directVideoPlayer.style.display !== 'none') {
                 toggleMute();
             }
             break;
         case 'Enter':
             if (document.activeElement !== videoLinkInput) {
+                e.preventDefault();
                 loadVideo();
             }
             break;
     }
 }
+
+// Initialize matrix background
+(function initMatrixBackground() {
+    const canvas = document.getElementById('matrix');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const characters = "♡♡";
+    const fontSize = 14;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function drawMatrix() {
+        ctx.fillStyle = 'rgba(15, 15, 15, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = '#00cec9';
+        ctx.font = fontSize + 'px monospace';
+
+        for (let i = 0; i < drops.length; i++) {
+            const text = characters.charAt(Math.floor(Math.random() * characters.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+    }
+
+    setInterval(drawMatrix, 33);
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+})();
+
+// Initialize particles.js background
+(function initParticles() {
+    if (typeof particlesJS !== 'undefined') {
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 60 },
+                size: { value: 2 },
+                color: { value: '#00cec9' },
+                line_linked: {
+                    enable: true,
+                    color: '#00cec9',
+                    opacity: 0.3
+                },
+                move: { enable: true, speed: 1 }
+            },
+            interactivity: {
+                events: {
+                    onhover: { enable: true, mode: 'repulse' }
+                }
+            }
+        });
+    }
+})();
