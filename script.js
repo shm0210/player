@@ -369,6 +369,16 @@ function handleVideoError() {
     showError("Failed to load the video. Please check the link and try again");
 }
 
+// Auto-load video from query string (?=videoURL)
+document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const videoUrl = params.get(''); // because query is like ?=link
+    if (videoUrl) {
+        videoLinkInput.value = videoUrl;
+        loadVideo();
+    }
+});
+
 // Keyboard shortcuts
 function handleKeyboardShortcuts(e) {
     if (e.target === videoLinkInput) return;
