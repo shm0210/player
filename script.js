@@ -270,7 +270,7 @@ function changeQuality() {
 // Helper functions
 function isValidVideoLink(url) {
     const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
-    const directVideoRegex = /^(https?:\/\/)?.*\.(mp4|webm|ogg|mov|mkv|avi|m3u8)(\?.*)?$/i;
+    const directVideoRegex = /^(https?:\/\/)?.*\.(mp4|webm|ogg|mov|mkv|avi|m3u8|mpg|mpeg|vdo)(\?.*)?$/i;
     return youtubeRegex.test(url) || directVideoRegex.test(url);
 }
 
