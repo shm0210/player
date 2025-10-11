@@ -157,13 +157,17 @@ function loadYouTubeVideo(videoLink) {
         return;
     }
 
-    youtubeIframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
+    // Use youtube-nocookie.com with strict privacy and minimal branding
+    youtubeIframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&controls=1&fs=1&disablekb=0`;
+
     youtubePlayer.style.display = 'block';
     directVideoPlayer.style.display = 'none';
     progressContainer.style.display = 'none';
     qualitySelector.style.display = 'none';
+
     showSuccess("YouTube video loaded successfully");
 }
+
 
 // ==========================
 // Load Video Function
