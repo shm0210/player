@@ -142,7 +142,9 @@ function updateProgressBar() {
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
+    // Initialize volume
     videoElement.volume = volumeSlider.value;
+    // Hide native controls immediately
     videoElement.controls = false;
 });
 
@@ -181,8 +183,12 @@ youtubeIframe.addEventListener('error', handleVideoError);
 document.addEventListener('keydown', handleKeyboardShortcuts);
 themeToggle.addEventListener('click', toggleTheme);
 playPauseBtn.addEventListener('click', togglePlayPause);
-rewindBtn.addEventListener('click', () => { videoElement.currentTime -= 10; });
-forwardBtn.addEventListener('click', () => { videoElement.currentTime += 10; });
+rewindBtn.addEventListener('click', () => {
+    videoElement.currentTime -= 10;
+});
+forwardBtn.addEventListener('click', () => {
+    videoElement.currentTime += 10;
+});
 muteBtn.addEventListener('click', toggleMute);
 volumeSlider.addEventListener('input', handleVolumeChange);
 progressContainer.addEventListener('click', seekVideo);
@@ -216,15 +222,11 @@ function loadVideo() {
                 showError("Invalid YouTube link. Please check the URL");
                 return;
             }
-
-            // ✅ Updated Ad-Free YouTube Embed via Piped
-            const embedBase = "https://piped.video/embed/";
-            youtubeIframe.src = `${embedBase}${videoId}?autoplay=1`;
-
+            youtubeIframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
             youtubePlayer.style.display = 'block';
             directVideoPlayer.style.display = 'none';
             progressContainer.style.display = 'none';
-            showSuccess("Ad-free YouTube video loaded successfully");
+            showSuccess("YouTube video loaded successfully");
         } else {
             videoElement.src = videoLink;
             youtubePlayer.style.display = 'none';
@@ -236,6 +238,7 @@ function loadVideo() {
                 console.error("Autoplay error:", e);
             });
             
+            // Check for available qualities (simulated here)
             simulateQualityOptions();
         }
     }, 500);
@@ -244,6 +247,8 @@ function loadVideo() {
 // Simulate quality options
 function simulateQualityOptions() {
     qualitySelect.innerHTML = '<option value="auto">Auto Quality</option>';
+    
+    // Simulate different quality options
     const qualities = ['1080p', '720p', '480p', '360p'];
     qualities.forEach(quality => {
         const option = document.createElement('option');
@@ -251,6 +256,7 @@ function simulateQualityOptions() {
         option.textContent = quality;
         qualitySelect.appendChild(option);
     });
+    
     qualitySelector.style.display = 'block';
 }
 
@@ -258,6 +264,7 @@ function simulateQualityOptions() {
 function changeQuality() {
     const quality = qualitySelect.value;
     showSuccess(`Quality changed to ${quality.toUpperCase()}`);
+    // In a real implementation, you would switch the video source here
 }
 
 // Helper functions
@@ -296,6 +303,7 @@ function togglePiP() {
 
 function toggleFullscreen() {
     const element = directVideoPlayer.style.display !== 'none' ? videoElement : youtubeIframe;
+    
     if (document.fullscreenElement) {
         document.exitFullscreen();
     } else {
@@ -364,7 +372,7 @@ function handleVideoError() {
 // Auto-load video from query string (?=videoURL)
 document.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
-    const videoUrl = params.get('');
+    const videoUrl = params.get(''); // because query is like ?=link
     if (videoUrl) {
         videoLinkInput.value = videoUrl;
         loadVideo();
@@ -374,26 +382,72 @@ document.addEventListener('DOMContentLoaded', () => {
 // Keyboard shortcuts
 function handleKeyboardShortcuts(e) {
     if (e.target === videoLinkInput) return;
+    
     switch(e.code) {
-        case 'Space': if (directVideoPlayer.style.display !== 'none') { e.preventDefault(); togglePlayPause(); } break;
-        case 'ArrowRight': if (directVideoPlayer.style.display !== 'none') { e.preventDefault(); videoElement.currentTime += 5; } break;
-        case 'ArrowLeft': if (directVideoPlayer.style.display !== 'none') { e.preventDefault(); videoElement.currentTime -= 5; } break;
-        case 'KeyF': e.preventDefault(); toggleFullscreen(); break;
-        case 'KeyP': e.preventDefault(); if (directVideoPlayer.style.display !== 'none') togglePiP(); break;
-        case 'KeyD': e.preventDefault(); if (directVideoPlayer.style.display !== 'none') downloadVideo(); break;
-        case 'KeyR': e.preventDefault(); resetPlayer(); break;
-        case 'KeyT': e.preventDefault(); toggleTheme(); break;
-        case 'KeyM': e.preventDefault(); if (directVideoPlayer.style.display !== 'none') toggleMute(); break;
-        case 'Enter': if (document.activeElement !== videoLinkInput) { e.preventDefault(); loadVideo(); } break;
+        case 'Space':
+            if (directVideoPlayer.style.display !== 'none') {
+                e.preventDefault();
+                togglePlayPause();
+            }
+            break;
+        case 'ArrowRight':
+            if (directVideoPlayer.style.display !== 'none') {
+                e.preventDefault();
+                videoElement.currentTime += 5;
+            }
+            break;
+        case 'ArrowLeft':
+            if (directVideoPlayer.style.display !== 'none') {
+                e.preventDefault();
+                videoElement.currentTime -= 5;
+            }
+            break;
+        case 'KeyF':
+            e.preventDefault();
+            toggleFullscreen();
+            break;
+        case 'KeyP':
+            e.preventDefault();
+            if (directVideoPlayer.style.display !== 'none') {
+                togglePiP();
+            }
+            break;
+        case 'KeyD':
+            e.preventDefault();
+            if (directVideoPlayer.style.display !== 'none') {
+                downloadVideo();
+            }
+            break;
+        case 'KeyR':
+            e.preventDefault();
+            resetPlayer();
+            break;
+        case 'KeyT':
+            e.preventDefault();
+            toggleTheme();
+            break;
+        case 'KeyM':
+            e.preventDefault();
+            if (directVideoPlayer.style.display !== 'none') {
+                toggleMute();
+            }
+            break;
+        case 'Enter':
+            if (document.activeElement !== videoLinkInput) {
+                e.preventDefault();
+                loadVideo();
+            }
+            break;
     }
 }
 
-// Matrix background
+// Initialize matrix background
 (function initMatrixBackground() {
     const canvas = document.getElementById('matrix');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+
     const characters = "♡♡";
     const fontSize = 14;
     const columns = canvas.width / fontSize;
@@ -402,23 +456,30 @@ function handleKeyboardShortcuts(e) {
     function drawMatrix() {
         ctx.fillStyle = 'rgba(15, 15, 15, 0.05)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+
         ctx.fillStyle = '#00cec9';
         ctx.font = fontSize + 'px monospace';
+
         for (let i = 0; i < drops.length; i++) {
             const text = characters.charAt(Math.floor(Math.random() * characters.length));
             ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
             drops[i]++;
         }
     }
+
     setInterval(drawMatrix, 33);
+
     window.addEventListener('resize', () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
     });
 })();
 
-// Particles background
+// Initialize particles.js background
 (function initParticles() {
     if (typeof particlesJS !== 'undefined') {
         particlesJS('particles-js', {
