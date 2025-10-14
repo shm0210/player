@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INFINITY Direct Video Player</title>
+<link rel="stylesheet" href="style-direct.css">
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+</head>
+<body>
+    <div class="background">
+        <canvas id="matrix"></canvas>
+        <div id="particles-js"></div>
+    </div>
+
+    <div class="video-container">
+        <video id="video-player" controls></video>
+
+        <!-- Video progress slider -->
+<div class="progress-wrapper">
+  <div class="progress-buffer" id="progress-buffer"></div>
+  <input type="range" id="progress-bar" value="0" min="0" step="0.1">
+</div>
+<div class="time-display" id="time-display">00:00 / 00:00</div>
+
+        <div class="input-group">
+            <input type="text" id="video-link" placeholder="Paste Direct Video URL">
+            <button id="play-button">▶ Play</button>
+        </div>
+
+        <div id="loading">Loading video...</div>
+        <div id="error-message" class="message error-message"></div>
+        <div id="success-message" class="message success-message"></div>
+
+<div class="player-controls">
+    <button id="backward-btn">⏪ 10s</button>
+    <button id="play-pause-btn">▶️</button>
+    <button id="forward-btn">⏩ 10s</button>
+    <button id="share-btn">🔗 Share</button>
+        </div>
+
+
+        <div class="controls">
+            <button class="fullscreen-btn" id="fullscreen-button">⛶ Fullscreen</button>
+            <button class="reset-btn" id="reset-button">🔄 Reset</button>
+            <button class="theme-btn" id="theme-toggle">🌙 Theme</button>
+        </div>
+    </div>
+
+    <!-- About Section -->
+    <section class="about">
+        <button id="about-toggle" class="about-toggle">
+            <i class="fas fa-info-circle"></i>
+        </button>
+        <div id="about-content" class="about-content">
+            <h2>💡 About INFINITY Direct Player</h2>
+            <p>This player allows you to watch <strong>any direct video link or network stream</strong> without ads or distractions.</p>
+            <p>Supports MP4, WebM, and HLS (.m3u8) streams.</p>
+            <p class="about-signature">🙏 Special thanks to all users and supporters — your trust makes this player possible!</p>
+        </div>
+    </section>
+
+    <script src="script-direct.js"></script>
+</body>
+</html>
+
