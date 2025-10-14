@@ -299,6 +299,31 @@ video::-webkit-media-controls {
     color: var(--button-hover-bg);
     text-decoration: underline;
 }
+ /* === About Footer Styling === */
+.about-content .footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.about-content .footer a {
+  color: var(--button-bg);
+  font-weight: 600;
+  margin-left: 4px;
+  text-decoration: none;
+  transition: color var(--transition-speed);
+}
+
+.about-content .footer a:hover {
+  color: var(--button-hover-bg);
+  text-decoration: underline;
+}
 
 .social-links {
     display: flex;
