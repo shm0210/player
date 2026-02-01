@@ -1,6 +1,6 @@
 // ============================
 // INFINITY YouTube Player JS
-// Fixed Version - No Auto-Show Issues
+// Complete Fixed Version
 // ============================
 
 // --- Element References ---
@@ -71,7 +71,9 @@ function initTheme() {
     
     // Update theme toggle icon
     const icon = themeMenuToggle.querySelector('i');
-    icon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+    if (icon) {
+        icon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+    }
 }
 
 function toggleTheme() {
@@ -81,7 +83,7 @@ function toggleTheme() {
     showSuccess(isDarkMode ? "🌙 Dark theme enabled" : "☀️ Light theme enabled");
 }
 
-// --- Menu System (FIXED) ---
+// --- Menu System ---
 function toggleMenu() {
     isMenuOpen = !isMenuOpen;
     
@@ -403,13 +405,13 @@ function formatTimeAgo(timestamp) {
 // --- Status Handlers ---
 function showError(message) {
     errorMessageElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
-    errorMessageElement.style.display = 'block';
+    errorMessageElement.style.display = 'flex';
     setTimeout(() => (errorMessageElement.style.display = 'none'), 5000);
 }
 
 function showSuccess(message) {
     successMessageElement.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
-    successMessageElement.style.display = 'block';
+    successMessageElement.style.display = 'flex';
     setTimeout(() => (successMessageElement.style.display = 'none'), 3000);
 }
 
@@ -757,7 +759,7 @@ const modalContents = {
         </div>
         
         <div class="modal-signature">
-            <p>Crafted with ❤️ by Shubham</p>
+            <p><i class="fas fa-heart"></i> Crafted by Shubham</p>
             <p class="version">v2.0 • Enhanced Edition</p>
         </div>
     `,
@@ -884,7 +886,7 @@ const modalContents = {
         </div>
         
         <div class="modal-section">
-            <p class="thank-you">Thank you for using INFINITY Player! 🙏</p>
+            <p class="thank-you">Thank you for using INFINITY Player! <i class="fas fa-heart"></i></p>
         </div>
     `
 };
@@ -1041,6 +1043,7 @@ function init() {
     console.log("🎨 Theme: " + (isDarkMode ? "Dark" : "Light"));
     console.log("💾 History Items: " + (JSON.parse(localStorage.getItem('videoHistory') || '[]').length));
     console.log("✅ Menu: Closed by default");
+    console.log("✅ Icons: Font Awesome with Unicode fallbacks");
 }
 
 // Start the application
