@@ -495,16 +495,21 @@ async function copyVideoLink() {
     
     try {
         const videoUrl = `https://www.youtube.com/watch?v=${currentVideoId}`;
-        await navigator.clipboard.writeText(videoUrl);
-        showSuccess("Video link copied to clipboard");
+        const playerUrl = `${window.location.origin}${window.location.pathname}?v=${currentVideoId}`;
+        const textToCopy = `YouTube: ${videoUrl}\nPlayer: ${playerUrl}`;
+        
+        await navigator.clipboard.writeText(textToCopy);
+        showSuccess("Video links copied to clipboard");
     } catch (error) {
+        // Fallback for older browsers
         const textArea = document.createElement('textarea');
-        textArea.value = `https://www.youtube.com/watch?v=${currentVideoId}`;
+        const playerUrl = `${window.location.origin}${window.location.pathname}?v=${currentVideoId}`;
+        textArea.value = playerUrl;
         document.body.appendChild(textArea);
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        showSuccess("Link copied!");
+        showSuccess("Player link copied!");
     }
 }
 
@@ -516,8 +521,7 @@ async function shareVideo() {
     }
     
     try {
-        const videoUrl = `https://www.youtube.com/watch?v=${currentVideoId}`;
-        const shareUrl = `${window.location.origin}${window.location.pathname}?v=${encodeURIComponent(videoUrl)}`;
+        const shareUrl = `${window.location.origin}${window.location.pathname}?v=${currentVideoId}`;
         const shareText = currentVideoData ? 
             `Watch "${currentVideoData.title}" on INFINITY Player` : 
             "Watch this video on INFINITY Player";
@@ -581,39 +585,29 @@ async function copyToClipboard(text) {
 // --- Auto-load from URL ---
 function autoLoadFromURL() {
     const params = new URLSearchParams(window.location.search);
-    const videoParam = params.get('v') || params.get('video') || params.get('url') || params.get('link');
+    let videoId = params.get('v') || params.get('video') || params.get('id') || params.get('vid');
     
-    if (videoParam) {
-        try {
-            const decodedUrl = decodeURIComponent(videoParam);
-            if (isYouTubeLink(decodedUrl)) {
-                videoLinkInput.value = decodedUrl;
-                loadingElement.style.display = 'flex';
-                
-                setTimeout(() => {
-                    loadVideo();
-                    showSuccess("Video auto-loaded from URL");
-                }, 800);
-                
-                return true;
-            }
-        } catch (error) {
-            console.error("Error parsing URL parameter:", error);
+    if (videoId) {
+        // Check if it's already a video ID or a full URL
+        const isFullUrl = videoId.includes('youtube.com') || videoId.includes('youtu.be');
+        
+        if (isFullUrl) {
+            // Extract video ID from full URL
+            videoId = getYouTubeVideoId(videoId);
         }
-    }
-    
-    const videoIdParam = params.get('id') || params.get('vid');
-    if (videoIdParam) {
-        const youtubeUrl = `https://www.youtube.com/watch?v=${videoIdParam}`;
-        videoLinkInput.value = youtubeUrl;
-        loadingElement.style.display = 'flex';
         
-        setTimeout(() => {
-            loadVideo();
-            showSuccess("Video auto-loaded from ID");
-        }, 800);
-        
-        return true;
+        if (videoId) {
+            const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
+            videoLinkInput.value = youtubeUrl;
+            loadingElement.style.display = 'flex';
+            
+            setTimeout(() => {
+                loadVideo();
+                showSuccess("Video auto-loaded from URL");
+            }, 800);
+            
+            return true;
+        }
     }
     
     return false;
@@ -625,9 +619,14 @@ function updatePageURL(url) {
         const videoId = getYouTubeVideoId(url);
         if (videoId) {
             const newUrl = new URL(window.location.href);
+            
+            // Remove all video-related parameters
             const paramsToRemove = ['v', 'video', 'url', 'link', 'id', 'vid'];
             paramsToRemove.forEach(param => newUrl.searchParams.delete(param));
-            newUrl.searchParams.set('v', url);
+            
+            // Set only the video ID as parameter
+            newUrl.searchParams.set('v', videoId);
+            
             window.history.replaceState({}, document.title, newUrl.toString());
             
             if (currentVideoData && currentVideoData.title) {
