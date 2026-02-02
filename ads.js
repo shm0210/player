@@ -1,48 +1,55 @@
-// ads.js - AdSense Management for INFINITY YouTube Player
+// ads.js - Google AdSense Integration for INFINITY YouTube Player
+// ================================================================
 
 class AdManager {
     constructor() {
         this.adUnits = {
-            banner: null,
-            sidebar: null,
-            videoBottom: null
+            top: null,      // Top of video player
+            bottom: null,   // Bottom of controls
+            menu: null      // Bottom of menu
         };
+        
         this.isAdBlocked = false;
-        this.adEnabled = true;
+        this.adEnabled = false;
         this.init();
     }
 
     init() {
-        // Check if AdSense is loaded
-        this.checkAdBlock();
-        this.setupAutoAds();
-        this.createAdContainers();
-        
-        // Load ads after page is ready
-        window.addEventListener('load', () => {
-            setTimeout(() => this.loadAds(), 2000);
-        });
+        // Check if AdSense script is already loaded
+        if (typeof adsbygoogle !== 'undefined') {
+            this.setupAds();
+        } else {
+            // Listen for AdSense script load
+            document.addEventListener('adsbygoogle.loaded', () => {
+                this.setupAds();
+            });
+        }
+
+        // Check for ad blockers
+        this.detectAdBlock();
     }
 
-    checkAdBlock() {
-        // Simple ad block detection
+    detectAdBlock() {
+        // Simple ad blocker detection
         const testAd = document.createElement('div');
         testAd.innerHTML = '&nbsp;';
-        testAd.className = 'adsbox';
-        testAd.style.cssText = 'height:1px;width:1px;position:absolute;left:-100px;top:-100px;visibility:hidden;';
+        testAd.className = 'ad adsbox doubleclick ad-placement carbon-ads';
+        testAd.style.cssText = 'position:absolute;left:-9999px;visibility:hidden;';
         document.body.appendChild(testAd);
-        
+
         setTimeout(() => {
             const isBlocked = testAd.offsetHeight === 0 || 
-                              testAd.offsetWidth === 0 ||
-                              testAd.style.display === 'none' ||
-                              testAd.style.visibility === 'hidden';
+                             testAd.offsetWidth === 0 || 
+                             testAd.style.display === 'none' ||
+                             testAd.style.visibility === 'hidden';
             
             this.isAdBlocked = isBlocked;
             
             if (isBlocked) {
-                console.log('Ad blocker detected');
+                console.warn("Ad blocker detected. Ads will not be displayed.");
                 this.showAdBlockMessage();
+            } else {
+                console.log("No ad blocker detected. Ads will load normally.");
             }
             
             document.body.removeChild(testAd);
@@ -50,312 +57,262 @@ class AdManager {
     }
 
     showAdBlockMessage() {
-        // Optional: Show message to disable ad blocker
-        if (!this.adEnabled) return;
-        
         const message = document.createElement('div');
         message.className = 'adblock-message';
+        message.style.cssText = `
+            background: linear-gradient(135deg, #ff9800, #ff5722);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 10px auto;
+            max-width: 800px;
+            text-align: center;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            border-left: 4px solid #ff5722;
+        `;
+        
         message.innerHTML = `
-            <div class="adblock-warning">
-                <i class="fas fa-ad"></i>
-                <div>
-                    <h4>Please consider disabling ad blocker</h4>
-                    <p>Ads help keep this free service running. Whitelist us to support development.</p>
-                </div>
-                <button class="close-adblock-message">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>Please consider disabling your ad blocker to support the developer. Ads are minimal and non-intrusive.</span>
         `;
         
-        document.body.appendChild(message);
+        // Insert after video container
+        const videoContainer = document.querySelector('.video-container');
+        if (videoContainer && videoContainer.parentNode) {
+            videoContainer.parentNode.insertBefore(message, videoContainer.nextSibling);
+        }
+    }
+
+    setupAds() {
+        if (this.isAdBlocked) {
+            console.log("Skipping ad setup due to ad blocker");
+            return;
+        }
+
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.createAdUnits());
+        } else {
+            this.createAdUnits();
+        }
+    }
+
+    createAdUnits() {
+        // Create ad containers
+        this.createTopAd();
+        this.createBottomAd();
+        this.createMenuAd();
         
-        const closeBtn = message.querySelector('.close-adblock-message');
-        closeBtn.addEventListener('click', () => {
-            message.style.opacity = '0';
-            setTimeout(() => message.remove(), 300);
-        });
+        // Enable ads
+        this.adEnabled = true;
         
-        // Auto-remove after 10 seconds
+        // Load ads after a short delay
         setTimeout(() => {
-            if (message.parentNode) {
-                message.style.opacity = '0';
-                setTimeout(() => message.remove(), 300);
-            }
-        }, 10000);
+            this.loadAds();
+        }, 1000);
     }
 
-    createAdContainers() {
-        // Create ad container in sidebar
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar) {
-            const adContainer = document.createElement('div');
-            adContainer.className = 'sidebar-ad-container';
-            adContainer.innerHTML = `
-                <div class="ad-label">
-                    <i class="fas fa-ad"></i> Advertisement
-                </div>
-                <div class="sidebar-ad" id="sidebar-ad">
-                    <!-- AdSense will fill this -->
-                </div>
-            `;
-            
-            // Insert after owner profile section
-            const profileSection = sidebar.querySelector('.owner-profile-menu');
-            if (profileSection) {
-                profileSection.parentNode.insertBefore(adContainer, profileSection.nextSibling);
-            }
-        }
-
-        // Create banner ad at top
-        const bannerAd = document.createElement('div');
-        bannerAd.id = 'banner-ad';
-        bannerAd.className = 'banner-ad-container';
-        bannerAd.innerHTML = `
-            <div class="ad-label">
-                <i class="fas fa-ad"></i> Advertisement
-            </div>
-            <div class="banner-ad-content">
-                <!-- AdSense will fill this -->
-            </div>
+    createTopAd() {
+        // Create container for top ad
+        const adContainer = document.createElement('div');
+        adContainer.className = 'ad-container top-ad';
+        adContainer.style.cssText = `
+            margin-bottom: 20px;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
         `;
-        
-        // Insert after legal disclaimer
-        const disclaimer = document.querySelector('.legal-disclaimer');
-        if (disclaimer) {
-            disclaimer.parentNode.insertBefore(bannerAd, disclaimer.nextSibling);
-        }
 
-        // Create ad below video info
-        const videoBottomAd = document.createElement('div');
-        videoBottomAd.id = 'video-bottom-ad';
-        videoBottomAd.className = 'video-bottom-ad-container';
-        videoBottomAd.innerHTML = `
-            <div class="ad-label">
-                <i class="fas fa-ad"></i> Advertisement
-            </div>
-            <div class="video-bottom-ad-content">
-                <!-- AdSense will fill this -->
-            </div>
-        `;
+        // Create the ad unit
+        const adUnit = document.createElement('ins');
+        adUnit.className = 'adsbygoogle';
+        adUnit.style.display = 'block';
+        adUnit.setAttribute('data-ad-client', 'ca-pub-XXXXXXXXXXXXXXXX'); // Replace with your AdSense ID
+        adUnit.setAttribute('data-ad-slot', 'XXXXXXXXXX'); // Replace with your ad slot
+        adUnit.setAttribute('data-ad-format', 'auto');
+        adUnit.setAttribute('data-full-width-responsive', 'true');
+        adUnit.setAttribute('data-adtest', 'on'); // Remove in production
+
+        adContainer.appendChild(adUnit);
         
-        // Insert after video info
-        const videoInfo = document.getElementById('video-info');
-        if (videoInfo) {
-            videoInfo.parentNode.insertBefore(videoBottomAd, videoInfo.nextSibling);
+        // Insert before the video player
+        const youtubePlayer = document.getElementById('youtube-player');
+        if (youtubePlayer && youtubePlayer.parentNode) {
+            youtubePlayer.parentNode.insertBefore(adContainer, youtubePlayer);
+            this.adUnits.top = adContainer;
         }
     }
 
-    setupAutoAds() {
-        // Enable Auto ads if needed
-        try {
-            (adsbygoogle = window.adsbygoogle || []).push({
-                google_ad_client: "ca-pub-YOUR_PUBLISHER_ID",
-                enable_page_level_ads: true,
-                overlays: { bottom: true }
-            });
-        } catch (e) {
-            console.error('AdSense auto ads error:', e);
+    createBottomAd() {
+        // Create container for bottom ad
+        const adContainer = document.createElement('div');
+        adContainer.className = 'ad-container bottom-ad';
+        adContainer.style.cssText = `
+            margin-top: 20px;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        `;
+
+        // Create the ad unit
+        const adUnit = document.createElement('ins');
+        adUnit.className = 'adsbygoogle';
+        adUnit.style.display = 'block';
+        adUnit.setAttribute('data-ad-client', 'ca-pub-XXXXXXXXXXXXXXXX'); // Replace with your AdSense ID
+        adUnit.setAttribute('data-ad-slot', 'XXXXXXXXXX'); // Replace with your ad slot
+        adUnit.setAttribute('data-ad-format', 'auto');
+        adUnit.setAttribute('data-full-width-responsive', 'true');
+        adUnit.setAttribute('data-adtest', 'on'); // Remove in production
+
+        adContainer.appendChild(adUnit);
+        
+        // Insert after the controls
+        const controls = document.querySelector('.controls');
+        if (controls && controls.parentNode) {
+            controls.parentNode.insertBefore(adContainer, controls.nextSibling);
+            this.adUnits.bottom = adContainer;
+        }
+    }
+
+    createMenuAd() {
+        // Create container for menu ad
+        const adContainer = document.createElement('div');
+        adContainer.className = 'ad-container menu-ad';
+        adContainer.style.cssText = `
+            margin-top: auto;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        `;
+
+        // Create the ad unit
+        const adUnit = document.createElement('ins');
+        adUnit.className = 'adsbygoogle';
+        adUnit.style.display = 'block';
+        adUnit.setAttribute('data-ad-client', 'ca-pub-XXXXXXXXXXXXXXXX'); // Replace with your AdSense ID
+        adUnit.setAttribute('data-ad-slot', 'XXXXXXXXXX'); // Replace with your ad slot
+        adUnit.setAttribute('data-ad-format', 'auto');
+        adUnit.setAttribute('data-full-width-responsive', 'true');
+        adUnit.setAttribute('data-adtest', 'on'); // Remove in production
+
+        adContainer.appendChild(adUnit);
+        
+        // Insert in menu before footer
+        const menuFooter = document.querySelector('.menu-footer');
+        if (menuFooter && menuFooter.parentNode) {
+            menuFooter.parentNode.insertBefore(adContainer, menuFooter);
+            this.adUnits.menu = adContainer;
         }
     }
 
     loadAds() {
         if (!this.adEnabled || this.isAdBlocked) return;
-        
-        // Load sidebar ad
-        this.loadSidebarAd();
-        
-        // Load banner ad
-        this.loadBannerAd();
-        
-        // Load video bottom ad
-        this.loadVideoBottomAd();
-    }
 
-    loadSidebarAd() {
-        if (!this.adEnabled) return;
-        
-        const adSlot = document.getElementById('sidebar-ad');
-        if (!adSlot) return;
-        
-        try {
-            (adsbygoogle = window.adsbygoogle || []).push({
-                google_ad_client: "ca-pub-YOUR_PUBLISHER_ID",
-                enable_page_level_ads: false,
-                overlays: { bottom: false }
-            });
-            
-            adSlot.innerHTML = `
-                <ins class="adsbygoogle"
-                    style="display:block"
-                    data-ad-client="ca-pub-YOUR_PUBLISHER_ID"
-                    data-ad-slot="YOUR_SIDEBAR_AD_SLOT_ID"
-                    data-ad-format="auto"
-                    data-full-width-responsive="true"></ins>
-                <script>
+        // Wait a bit for ads to be properly inserted
+        setTimeout(() => {
+            try {
+                // Load ads
+                if (typeof (adsbygoogle = window.adsbygoogle || []).push === 'function') {
                     (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
-            `;
-            
-            // Reload the ad
-            if (window.adsbygoogle) {
-                (adsbygoogle = window.adsbygoogle || []).push({});
+                    console.log("AdSense ads loaded successfully");
+                }
+            } catch (error) {
+                console.error("Error loading AdSense ads:", error);
             }
-        } catch (e) {
-            console.error('Error loading sidebar ad:', e);
-        }
-    }
-
-    loadBannerAd() {
-        if (!this.adEnabled) return;
-        
-        const bannerContent = document.querySelector('.banner-ad-content');
-        if (!bannerContent) return;
-        
-        try {
-            bannerContent.innerHTML = `
-                <ins class="adsbygoogle"
-                    style="display:block"
-                    data-ad-client="ca-pub-YOUR_PUBLISHER_ID"
-                    data-ad-slot="YOUR_BANNER_AD_SLOT_ID"
-                    data-ad-format="auto"
-                    data-full-width-responsive="true"></ins>
-                <script>
-                    (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
-            `;
-            
-            if (window.adsbygoogle) {
-                (adsbygoogle = window.adsbygoogle || []).push({});
-            }
-        } catch (e) {
-            console.error('Error loading banner ad:', e);
-        }
-    }
-
-    loadVideoBottomAd() {
-        if (!this.adEnabled) return;
-        
-        const bottomContent = document.querySelector('.video-bottom-ad-content');
-        if (!bottomContent) return;
-        
-        try {
-            bottomContent.innerHTML = `
-                <ins class="adsbygoogle"
-                    style="display:block"
-                    data-ad-client="ca-pub-YOUR_PUBLISHER_ID"
-                    data-ad-slot="YOUR_VIDEO_BOTTOM_AD_SLOT_ID"
-                    data-ad-format="auto"
-                    data-full-width-responsive="true"></ins>
-                <script>
-                    (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
-            `;
-            
-            if (window.adsbygoogle) {
-                (adsbygoogle = window.adsbygoogle || []).push({});
-            }
-        } catch (e) {
-            console.error('Error loading video bottom ad:', e);
-        }
+        }, 500);
     }
 
     refreshAds() {
-        if (!this.adEnabled) return;
-        
+        if (!this.adEnabled || this.isAdBlocked) return;
+
         try {
-            if (window.adsbygoogle) {
-                // Refresh all ads
-                (adsbygoogle = window.adsbygoogle || []).push({});
-            }
-        } catch (e) {
-            console.error('Error refreshing ads:', e);
+            // Destroy existing ads
+            Object.values(this.adUnits).forEach(container => {
+                if (container) {
+                    const ad = container.querySelector('.adsbygoogle');
+                    if (ad && ad.removeAttribute) {
+                        ad.removeAttribute('data-ad-status');
+                        ad.innerHTML = '';
+                    }
+                }
+            });
+
+            // Reload ads after a delay
+            setTimeout(() => {
+                this.loadAds();
+            }, 1000);
+        } catch (error) {
+            console.error("Error refreshing ads:", error);
         }
     }
 
-    toggleAds(enable) {
-        this.adEnabled = enable;
-        
-        const adContainers = document.querySelectorAll('.ad-label, .sidebar-ad-container, .banner-ad-container, .video-bottom-ad-container');
-        
-        if (enable) {
-            adContainers.forEach(container => {
-                container.style.display = 'block';
-            });
-            this.loadAds();
-        } else {
-            adContainers.forEach(container => {
-                container.style.display = 'none';
-            });
+    showAdPlaceholder(container) {
+        if (container && !container.querySelector('.ad-placeholder')) {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'ad-placeholder';
+            placeholder.style.cssText = `
+                padding: 20px;
+                text-align: center;
+                color: rgba(255, 255, 255, 0.5);
+                font-size: 0.9rem;
+            `;
+            placeholder.innerHTML = `
+                <i class="fas fa-ad" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
+                <p>Advertisement</p>
+                <small>Ads help support this free service</small>
+            `;
+            container.appendChild(placeholder);
         }
     }
 
-    // Call this when video starts playing
-    onVideoPlay() {
-        // Refresh ads when video plays
-        setTimeout(() => this.refreshAds(), 1000);
-    }
-
-    // Call this when menu opens
-    onMenuOpen() {
-        // Refresh sidebar ad when menu opens
-        setTimeout(() => this.loadSidebarAd(), 500);
-    }
-}
-
-// Initialize Ad Manager
-let adManager;
-
-function initAds() {
-    adManager = new AdManager();
-    
-    // Add ad toggle to menu
-    addAdToggleToMenu();
-}
-
-function addAdToggleToMenu() {
-    const menuSection = document.querySelector('.menu-section:nth-child(3)');
-    if (!menuSection) return;
-    
-    const adToggle = document.createElement('button');
-    adToggle.className = 'menu-option';
-    adToggle.id = 'ad-toggle';
-    adToggle.innerHTML = `
-        <i class="fas fa-ad"></i>
-        <span>Ads: <span id="ad-status">Enabled</span></span>
-    `;
-    
-    const menuOptions = menuSection.querySelector('.menu-options');
-    if (menuOptions) {
-        menuOptions.appendChild(adToggle);
-        
-        adToggle.addEventListener('click', () => {
-            if (adManager) {
-                const currentlyEnabled = adManager.adEnabled;
-                adManager.toggleAds(!currentlyEnabled);
-                
-                const adStatus = document.getElementById('ad-status');
-                adStatus.textContent = !currentlyEnabled ? "Enabled" : "Disabled";
-                
-                // Save preference
-                localStorage.setItem('adsEnabled', !currentlyEnabled);
+    destroy() {
+        // Remove all ad containers
+        Object.values(this.adUnits).forEach(container => {
+            if (container && container.parentNode) {
+                container.parentNode.removeChild(container);
             }
         });
         
-        // Load saved preference
-        const adsEnabled = localStorage.getItem('adsEnabled');
-        if (adsEnabled === 'false' && adManager) {
-            adManager.toggleAds(false);
-            const adStatus = document.getElementById('ad-status');
-            adStatus.textContent = "Disabled";
-        }
+        this.adUnits = {
+            top: null,
+            bottom: null,
+            menu: null
+        };
+        
+        this.adEnabled = false;
     }
 }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', initAds);
+// Initialize Ad Manager when DOM is ready
+let adManager;
 
-// Export for use in main script
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { AdManager, initAds };
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        adManager = new AdManager();
+    });
+} else {
+    adManager = new AdManager();
 }
+
+// Export for global access
+window.adManager = adManager;
