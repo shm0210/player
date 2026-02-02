@@ -1,9 +1,3 @@
-// ============================
-// INFINITY YouTube Player JS
-// Enhanced Version with Fixed Menu & History Titles
-// ============================
-
-// --- Element References ---
 const videoLinkInput = document.getElementById('video-link');
 const playButton = document.getElementById('play-button');
 const youtubeIframe = document.getElementById('youtube-iframe');
@@ -21,7 +15,6 @@ const videoViews = document.getElementById('video-views');
 const videoThumbnail = document.getElementById('video-thumbnail');
 const shareButton = document.getElementById('share-button') || document.createElement('button');
 
-// Menu Elements
 const menuToggle = document.getElementById('menu-toggle');
 const closeMenuButton = document.getElementById('close-menu');
 const sidebar = document.getElementById('sidebar');
@@ -36,24 +29,20 @@ const termsMenuButton = document.getElementById('terms-menu');
 const contactMenuButton = document.getElementById('contact-menu');
 const menuHistory = document.getElementById('menu-history');
 
-// Modal Elements
 const infoModal = document.getElementById('info-modal');
 const shortcutsModal = document.getElementById('shortcuts-modal');
 const modalTitle = document.getElementById('modal-title');
 const modalContent = document.getElementById('modal-content');
 const closeModalButtons = document.querySelectorAll('.close-modal');
 
-// --- State Variables ---
 let isDarkMode = localStorage.getItem('darkMode') === 'true';
 let currentVideoId = null;
 let currentVideoData = null;
 let wakeLock = null;
 let isMenuOpen = false;
 
-// --- YouTube API Integration ---
 let ytAPILoaded = false;
 
-// Check if YouTube API is already loaded
 if (window.YT && window.YT.loaded) {
     ytAPILoaded = true;
     console.log("✅ YouTube API already loaded");
@@ -64,7 +53,6 @@ if (window.YT && window.YT.loaded) {
     };
 }
 
-// --- Theme Management ---
 function initTheme() {
     document.body.classList.toggle('dark-mode', isDarkMode);
     themeStatus.textContent = isDarkMode ? "Dark" : "Light";
@@ -80,7 +68,6 @@ function toggleTheme() {
     showSuccess(isDarkMode ? "Dark theme enabled" : "Light theme enabled");
 }
 
-// --- Menu System (FIXED) ---
 function toggleMenu() {
     if (isMenuOpen) {
         closeMenu();
@@ -92,14 +79,11 @@ function toggleMenu() {
 function openMenu() {
     isMenuOpen = true;
     
-    // First set display to block for overlay
     menuOverlay.style.display = 'block';
     sidebar.style.display = 'flex';
     
-    // Force reflow to ensure CSS transition works
     void sidebar.offsetWidth;
     
-    // Add show classes to trigger animations
     setTimeout(() => {
         sidebar.classList.add('show');
         menuOverlay.classList.add('show');
@@ -119,12 +103,10 @@ function closeMenu() {
     
     isMenuOpen = false;
     
-    // Remove show classes to trigger closing animations
     sidebar.classList.remove('show');
     menuOverlay.classList.remove('show');
     menuToggle.classList.remove('open');
-    
-    // Wait for animation to complete before hiding
+
     setTimeout(() => {
         sidebar.style.display = 'none';
         menuOverlay.style.display = 'none';
@@ -164,7 +146,6 @@ async function fetchVideoMetadata(videoId) {
         const cachedData = getCachedVideoData(videoId);
         if (cachedData) {
             updateVideoInfoUI(cachedData);
-            // Update history with correct title if needed
             updateHistoryWithVideoData(videoId, cachedData);
             apiLoadingElement.style.display = 'none';
             return;
@@ -189,7 +170,6 @@ async function fetchVideoMetadata(videoId) {
         
         cacheVideoData(videoId, videoData);
         updateVideoInfoUI(videoData);
-        // Update history with the fetched title
         updateHistoryWithVideoData(videoId, videoData);
         await fetchVideoDuration(videoId);
         
@@ -203,28 +183,24 @@ async function fetchVideoMetadata(videoId) {
             views: "N/A"
         };
         updateVideoInfoUI(fallbackData);
-        // Still try to update history with fallback title
         updateHistoryWithVideoData(videoId, fallbackData);
     } finally {
         apiLoadingElement.style.display = 'none';
     }
 }
 
-// NEW FUNCTION: Update history with correct video data
 function updateHistoryWithVideoData(videoId, videoData) {
     try {
         const history = JSON.parse(localStorage.getItem('videoHistory') || '[]');
         const itemIndex = history.findIndex(item => item.id === videoId);
         
         if (itemIndex > -1) {
-            // Update the history item with actual data
             history[itemIndex].title = videoData.title || "Unknown Video";
             history[itemIndex].author = videoData.author || "YouTube";
             history[itemIndex].thumbnail = videoData.thumbnail_small || `https://img.youtube.com/vi/${videoId}/default.jpg`;
             
             localStorage.setItem('videoHistory', JSON.stringify(history));
             
-            // Update menu if it's open
             if (isMenuOpen) {
                 updateMenuHistory();
             }
@@ -246,7 +222,6 @@ async function fetchVideoDuration(videoId) {
                 updateCachedVideoDuration(videoId, data.duration);
                 videoDuration.textContent = formatDuration(data.duration);
                 
-                // Also update history duration
                 updateHistoryDuration(videoId, data.duration);
             }
         }
@@ -255,7 +230,6 @@ async function fetchVideoDuration(videoId) {
     }
 }
 
-// NEW FUNCTION: Update history duration
 function updateHistoryDuration(videoId, duration) {
     try {
         const history = JSON.parse(localStorage.getItem('videoHistory') || '[]');
@@ -304,7 +278,6 @@ function formatViews(views) {
     return views.toLocaleString() + ' views';
 }
 
-// --- Cache Management ---
 function cacheVideoData(videoId, data) {
     try {
         const cache = JSON.parse(localStorage.getItem('videoCache') || '{}');
@@ -344,7 +317,6 @@ function updateCachedVideoDuration(videoId, duration) {
     }
 }
 
-// --- Menu History Management (UPDATED) ---
 function updateMenuHistory() {
     const history = JSON.parse(localStorage.getItem('videoHistory') || '[]');
     menuHistory.innerHTML = '';
@@ -363,7 +335,6 @@ function updateMenuHistory() {
         const historyItem = document.createElement('div');
         historyItem.className = 'history-item-menu';
         
-        // Use the actual title from history, not "Loading..."
         const displayTitle = item.title === "Loading..." ? "Unknown Video" : item.title;
         
         historyItem.innerHTML = `
@@ -407,7 +378,6 @@ function formatTimeAgo(timestamp) {
     return past.toLocaleDateString();
 }
 
-// --- Status Handlers ---
 function showError(message) {
     errorMessageElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
     errorMessageElement.style.display = 'block';
@@ -420,7 +390,6 @@ function showSuccess(message) {
     setTimeout(() => (successMessageElement.style.display = 'none'), 3000);
 }
 
-// --- Video Handling ---
 function getYouTubeVideoId(url) {
     const patterns = [
         /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|live\/|shorts\/))([^&\n?#]+)/,
@@ -489,24 +458,20 @@ async function loadVideo() {
     }
 }
 
-// --- History Management (UPDATED) ---
 async function saveToHistory(videoId, url) {
     try {
         const history = JSON.parse(localStorage.getItem('videoHistory') || '[]');
         const existingIndex = history.findIndex(item => item.id === videoId);
         
         if (existingIndex > -1) {
-            // Move existing item to top
             const existingItem = history.splice(existingIndex, 1)[0];
             existingItem.timestamp = new Date().toISOString();
-            // Don't overwrite the title if we already have it
             history.unshift(existingItem);
         } else {
-            // Add new item with placeholder title
             history.unshift({
                 id: videoId,
                 url: url,
-                title: "Loading...", // Placeholder that will be updated
+                title: "Loading...",
                 thumbnail: `https://img.youtube.com/vi/${videoId}/default.jpg`,
                 timestamp: new Date().toISOString(),
                 duration: null
@@ -521,7 +486,6 @@ async function saveToHistory(videoId, url) {
     }
 }
 
-// REMOVED: Old updateHistoryItemTitle function (replaced by updateHistoryWithVideoData)
 
 function clearHistory() {
     if (confirm("Are you sure you want to clear all video history?")) {
@@ -531,7 +495,6 @@ function clearHistory() {
     }
 }
 
-// --- Copy Link Function ---
 async function copyVideoLink() {
     if (!currentVideoId) {
         showError("No video loaded");
@@ -546,7 +509,6 @@ async function copyVideoLink() {
         await navigator.clipboard.writeText(textToCopy);
         showSuccess("Video links copied to clipboard");
     } catch (error) {
-        // Fallback for older browsers
         const textArea = document.createElement('textarea');
         const playerUrl = `${window.location.origin}${window.location.pathname}?v=${currentVideoId}`;
         textArea.value = playerUrl;
@@ -558,7 +520,6 @@ async function copyVideoLink() {
     }
 }
 
-// --- Share Video Function ---
 async function shareVideo() {
     if (!currentVideoId) {
         showError("No video loaded to share");
@@ -593,7 +554,6 @@ async function shareVideo() {
     }
 }
 
-// --- Helper for Clipboard ---
 async function copyToClipboard(text) {
     try {
         await navigator.clipboard.writeText(text);
@@ -627,17 +587,14 @@ async function copyToClipboard(text) {
     }
 }
 
-// --- Auto-load from URL ---
 function autoLoadFromURL() {
     const params = new URLSearchParams(window.location.search);
     let videoId = params.get('v') || params.get('video') || params.get('id') || params.get('vid');
     
     if (videoId) {
-        // Check if it's already a video ID or a full URL
         const isFullUrl = videoId.includes('youtube.com') || videoId.includes('youtu.be');
         
         if (isFullUrl) {
-            // Extract video ID from full URL
             videoId = getYouTubeVideoId(videoId);
         }
         
@@ -658,18 +615,15 @@ function autoLoadFromURL() {
     return false;
 }
 
-// --- Update Page URL for Sharing ---
 function updatePageURL(url) {
     try {
         const videoId = getYouTubeVideoId(url);
         if (videoId) {
             const newUrl = new URL(window.location.href);
             
-            // Remove all video-related parameters
             const paramsToRemove = ['v', 'video', 'url', 'link', 'id', 'vid'];
             paramsToRemove.forEach(param => newUrl.searchParams.delete(param));
             
-            // Set only the video ID as parameter
             newUrl.searchParams.set('v', videoId);
             
             window.history.replaceState({}, document.title, newUrl.toString());
@@ -683,7 +637,6 @@ function updatePageURL(url) {
     }
 }
 
-// --- Wake Lock ---
 async function requestWakeLock() {
     if ('wakeLock' in navigator && !wakeLock) {
         try {
@@ -708,7 +661,6 @@ function releaseWakeLock() {
     }
 }
 
-// --- Keyboard Shortcuts ---
 function handleKeyboardShortcuts(event) {
     if (event.target.tagName === 'INPUT' || event.target.isContentEditable) return;
     
@@ -767,7 +719,6 @@ function handleKeyboardShortcuts(event) {
     }
 }
 
-// --- Fullscreen ---
 function toggleFullscreen() {
     if (!currentVideoId) {
         showError("Load a video first");
@@ -788,7 +739,6 @@ function toggleFullscreen() {
     }
 }
 
-// --- Reset Player ---
 function resetPlayer() {
     youtubeIframe.src = '';
     videoLinkInput.value = '';
@@ -812,7 +762,6 @@ function resetPlayer() {
     showSuccess("Player reset");
 }
 
-// --- Modal System ---
 function showModal(title, content) {
     modalTitle.textContent = title;
     modalContent.innerHTML = content;
@@ -824,7 +773,6 @@ function closeModals() {
     shortcutsModal.classList.remove('show');
 }
 
-// --- Modal Content ---
 const modalContents = {
     about: `
         <div class="modal-section">
@@ -864,7 +812,7 @@ const modalContents = {
         
         <div class="modal-signature">
             <p>Crafted with <i class="fas fa-heart"></i> by Shubham</p>
-            <p class="version">v2.2 • Fixed History Titles & Enhanced Features</p>
+            <p class="version">v2.2 • Enhanced Version</p>
         </div>
     `,
     
@@ -995,33 +943,26 @@ const modalContents = {
     `
 };
 
-// --- Event Listeners ---
 function initializeEventListeners() {
-    // Initialize theme
     initTheme();
     
-    // Theme toggle
     themeMenuToggle.addEventListener('click', toggleTheme);
     
-    // Video loading
     playButton.addEventListener('click', loadVideo);
     videoLinkInput.addEventListener('keypress', e => {
         if (e.key === 'Enter') loadVideo();
     });
     
-    // Menu system
     menuToggle.addEventListener('click', toggleMenu);
     closeMenuButton.addEventListener('click', closeMenu);
     menuOverlay.addEventListener('click', closeMenu);
     
-    // Menu buttons
     clearHistoryButton.addEventListener('click', clearHistory);
     shortcutsHelpButton.addEventListener('click', () => {
         shortcutsModal.classList.add('show');
         closeMenu();
     });
     
-    // Info menu buttons
     aboutMenuButton.addEventListener('click', () => {
         showModal('About INFINITY Player', modalContents.about);
         closeMenu();
@@ -1042,20 +983,16 @@ function initializeEventListeners() {
         closeMenu();
     });
     
-    // Main controls
     fullscreenButton.addEventListener('click', toggleFullscreen);
     resetButton.addEventListener('click', resetPlayer);
     copyLinkButton.addEventListener('click', copyVideoLink);
     
-    // Share button (if exists)
     if (shareButton && shareButton.id === 'share-button') {
         shareButton.addEventListener('click', shareVideo);
     }
     
-    // Keyboard shortcuts
     document.addEventListener('keydown', handleKeyboardShortcuts);
     
-    // Modal controls
     closeModalButtons.forEach(btn => {
         btn.addEventListener('click', closeModals);
     });
@@ -1066,13 +1003,11 @@ function initializeEventListeners() {
         });
     });
     
-    // Wake lock release
     window.addEventListener('beforeunload', releaseWakeLock);
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') releaseWakeLock();
     });
     
-    // Auto-focus input on page load
     window.addEventListener('load', () => {
         setTimeout(() => {
             if (!videoLinkInput.value) videoLinkInput.focus();
@@ -1080,7 +1015,6 @@ function initializeEventListeners() {
     });
 }
 
-// --- Particles Background ---
 function initParticles() {
     if (typeof particlesJS !== 'undefined') {
         particlesJS('particles-js', {
@@ -1117,17 +1051,14 @@ function initParticles() {
     }
 }
 
-// --- Initialization ---
 function init() {
     initializeEventListeners();
     initParticles();
     updateMenuHistory();
     
-    // Make sure menu starts closed
     sidebar.style.display = 'none';
     menuOverlay.style.display = 'none';
     
-    // Auto-load from URL
     setTimeout(() => {
         const loaded = autoLoadFromURL();
         if (!loaded) {
@@ -1144,5 +1075,4 @@ function init() {
     console.log("Menu: Closed by default");
 }
 
-// Start the application
 init();
