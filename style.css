@@ -1078,73 +1078,50 @@ body {
 
 /* Ad Container Styles */
 .ad-container {
-    margin: 20px 0;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    overflow: hidden;
-    min-height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    transition: all 0.3s ease;
+    position: relative;
 }
 
-.ad-top {
+.ad-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 224, 255, 0.1);
+}
+
+/* Top Ad */
+.top-ad {
     margin-bottom: 25px;
 }
 
-.ad-middle {
-    margin: 25px 0;
-}
-
-.ad-bottom {
+/* Bottom Ad */
+.bottom-ad {
     margin-top: 25px;
 }
 
-.ad-sidebar {
-    margin: 15px;
-    min-height: 250px;
+/* Menu Ad */
+.menu-ad {
+    margin: 20px 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Responsive ad sizes */
-.ad-small {
-    min-height: 100px;
+/* Ad Placeholder */
+.ad-placeholder {
+    background: linear-gradient(135deg, rgba(0, 224, 255, 0.1), rgba(0, 192, 255, 0.1));
+    border-radius: 8px;
+    animation: pulse 2s infinite;
 }
 
-.ad-medium {
-    min-height: 150px;
+@keyframes pulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
 }
 
-.ad-large {
-    min-height: 200px;
+/* Ad Block Message */
+.adblock-message {
+    animation: slideInDown 0.5s ease-out;
 }
 
-/* Ad placeholder */
-.ad-container:empty::before {
-    content: 'Advertisement';
-    color: rgba(255, 255, 255, 0.3);
-    font-size: 0.8rem;
-    font-style: italic;
-}
-
-/* Hide ads on very small screens */
-@media (max-width: 480px) {
-    .ad-sidebar {
-        display: none;
-    }
-    
-    .ad-container {
-        min-height: 50px;
-    }
-}
-
-/* Ad blocker message */
-.ad-block-message {
-    animation: slideIn 0.5s ease-out;
-}
-
-@keyframes slideIn {
+@keyframes slideInDown {
     from {
         opacity: 0;
         transform: translateY(-20px);
@@ -1153,4 +1130,37 @@ body {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* Responsive Ads */
+@media (max-width: 768px) {
+    .ad-container {
+        margin-left: -10px;
+        margin-right: -10px;
+        border-radius: 0;
+    }
+    
+    .top-ad {
+        margin-top: -10px;
+    }
+    
+    .menu-ad {
+        margin: 15px;
+    }
+}
+
+/* AdSense Compliance */
+.adsbygoogle {
+    display: block !important;
+    text-align: center;
+}
+
+/* Ensure ads don't interfere with content */
+.video-container {
+    position: relative;
+    z-index: 1;
+}
+
+.ad-container {
+    z-index: 2;
 }
