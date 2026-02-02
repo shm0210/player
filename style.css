@@ -286,6 +286,7 @@ body {
     margin-bottom: 8px;
     cursor: pointer;
     transition: var(--transition-speed);
+    position: relative;
 }
 
 .history-item-menu:hover {
@@ -317,6 +318,7 @@ body {
     left: 0;
 }
 
+/* Better history item layout */
 .history-details {
     flex: 1;
     min-width: 0;
@@ -328,11 +330,25 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     margin-bottom: 4px;
+    font-weight: 500;
+    color: var(--text-color);
 }
 
 .history-time {
     font-size: 0.75rem;
     opacity: 0.6;
+    margin-bottom: 2px;
+}
+
+/* History duration styling */
+.history-duration {
+    font-size: 0.7rem;
+    color: var(--button-bg);
+    background: rgba(0, 224, 255, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 4px;
+    display: inline-block;
 }
 
 .empty-state {
