@@ -4,64 +4,40 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>INFINITY YouTube Player</title>
-    <meta name="description" content="A privacy-focused YouTube player with minimal interface for better focus and content viewing. Watch YouTube videos without distractions.">
-    <meta name="keywords" content="YouTube player, privacy focused, no cookies, minimal interface, video player, watch YouTube">
+    <meta name="description" content="A privacy-focused YouTube player with minimal interface for better focus and content viewing.">
     <meta name="theme-color" content="#00e0ff">
     <meta name="author" content="Shubham" />
-    
-    <!-- Open Graph Tags -->
     <meta property="og:title" content="INFINITY YouTube Player — Minimal Interface" />
     <meta property="og:description" content="A privacy-focused YouTube player using nocookie mode. Minimal interface for focused viewing." />
     <meta property="og:image" content="https://static.pw.live/5b09189f7285894d9130ccd0/59794d57-bb52-4efb-aba4-f0519a16fc7e.png" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://shminfinity.fun/">
-    <meta property="og:site_name" content="INFINITY YouTube Player">
     
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="INFINITY YouTube Player">
-    <meta name="twitter:description" content="Privacy-focused YouTube player with minimal interface">
-    <meta name="twitter:image" content="https://static.pw.live/5b09189f7285894d9130ccd0/59794d57-bb52-4efb-aba4-f0519a16fc7e.png">
-    
-    <!-- Updated Content Security Policy for Ads -->
+    <!-- FIXED: Updated Content Security Policy for Font Awesome -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self'; 
-        script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.youtube.com https://pagead2.googlesyndication.com https://www.googletagmanager.com https://googleads.g.doubleclick.net; 
-        style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com 'unsafe-inline'; 
+        script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.youtube.com; 
+        style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com; 
         img-src 'self' https: data: blob:; 
-        frame-src https://www.youtube-nocookie.com https://www.youtube.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://securepubads.g.doubleclick.net; 
+        frame-src https://www.youtube-nocookie.com https://www.youtube.com; 
         font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:;
-        connect-src 'self' https://www.youtube.com https://noembed.com https://img.youtube.com https://pagead2.googlesyndication.com https://www.google-analytics.com;
-        child-src https://www.youtube-nocookie.com https://www.youtube.com https://googleads.g.doubleclick.net;
+        connect-src 'self' https://www.youtube.com https://noembed.com https://img.youtube.com;
     ">
-    
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_PUBLISHER_ID"
-            crossorigin="anonymous"></script>
     
     <!-- YouTube API -->
     <script src="https://www.youtube.com/iframe_api"></script>
     
-    <!-- Favicon -->
     <link rel="icon" href="https://www.youtube.com/s/desktop/5b55d6d2/img/favicon_32x32.png" type="image/png">
-    
-    <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://pagead2.googlesyndication.com">
-    <link rel="preconnect" href="https://googleads.g.doubleclick.net">
-    
-    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome -->
+    <!-- FIXED: Use specific Font Awesome version with correct integrity hash -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
           integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
           crossorigin="anonymous" referrerpolicy="no-referrer">
     
-    <!-- Stylesheets -->
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="ads.css">
 </head>
 
 <body>
@@ -69,30 +45,9 @@
         <div id="particles-js"></div>
     </div>
 
-    <!-- Header Ad Banner -->
-    <div class="ad-container ad-top-banner">
-        <div class="ad-label">Advertisement</div>
-        <!-- AdSense Ad Unit 1: Leaderboard -->
-        <ins class="adsbygoogle"
-             style="display:inline-block;width:728px;height:90px"
-             data-ad-client="ca-pub-YOUR_PUBLISHER_ID"
-             data-ad-slot="YOUR_LEADERBOARD_SLOT"></ins>
-        <script>
-            (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-        
-        <!-- Fallback for non-AdSense or blocked ads -->
-        <div class="ad-fallback">
-            <p>Support INFINITY Player to keep it free!</p>
-            <a href="#support" class="support-link">
-                <i class="fas fa-heart"></i> Support Development
-            </a>
-        </div>
-    </div>
-
     <!-- Legal Disclaimer -->
     <div class="legal-disclaimer">
-        <p><i class="fas fa-exclamation-triangle"></i> <strong>Disclaimer:</strong> This player uses YouTube's official embed feature. All videos are served directly from YouTube. Ads help support development costs.</p>
+        <p><i class="fas fa-exclamation-triangle"></i> <strong>Disclaimer:</strong> This player uses YouTube's official embed feature. All videos are served directly from YouTube.</p>
     </div>
 
     <!-- Hamburger Menu Button -->
@@ -109,7 +64,6 @@
             </button>
         </div>
         
-        <!-- Owner Profile -->
         <div class="menu-section">
             <h4><i class="fas fa-user"></i> Owner Profile</h4>
             <div class="owner-profile-menu">
@@ -124,35 +78,6 @@
             </div>
         </div>
 
-        <!-- Sidebar Ad -->
-        <div class="menu-section">
-            <h4><i class="fas fa-ad"></i> Support Development</h4>
-            <div class="ad-container ad-sidebar">
-                <div class="ad-label">Advertisement</div>
-                <!-- AdSense Ad Unit 2: Square -->
-                <ins class="adsbygoogle"
-                     style="display:block"
-                     data-ad-client="ca-pub-YOUR_PUBLISHER_ID"
-                     data-ad-slot="YOUR_SQUARE_SLOT"
-                     data-ad-format="auto"
-                     data-full-width-responsive="true"></ins>
-                <script>
-                    (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
-                
-                <!-- Alternative Support Options -->
-                <div class="support-options">
-                    <a href="https://www.buymeacoffee.com" target="_blank" class="support-btn">
-                        <i class="fas fa-coffee"></i> Buy Me a Coffee
-                    </a>
-                    <a href="https://www.patreon.com" target="_blank" class="support-btn">
-                        <i class="fab fa-patreon"></i> Become a Patron
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent Videos -->
         <div class="menu-section">
             <h4><i class="fas fa-history"></i> Recent Videos</h4>
             <div id="menu-history" class="menu-history">
@@ -164,7 +89,6 @@
             </div>
         </div>
 
-        <!-- Settings -->
         <div class="menu-section">
             <h4><i class="fas fa-cog"></i> Settings</h4>
             <div class="menu-options">
@@ -180,14 +104,9 @@
                     <i class="fas fa-keyboard"></i>
                     <span>Keyboard Shortcuts</span>
                 </button>
-                <button class="menu-option" id="ad-preferences">
-                    <i class="fas fa-ad"></i>
-                    <span>Ad Preferences</span>
-                </button>
             </div>
         </div>
 
-        <!-- Information -->
         <div class="menu-section">
             <h4><i class="fas fa-info-circle"></i> Information</h4>
             <div class="menu-options">
@@ -207,25 +126,14 @@
                     <i class="fas fa-envelope"></i>
                     <span>Contact & Support</span>
                 </button>
-                <button class="menu-option" id="advertising-menu">
-                    <i class="fas fa-ad"></i>
-                    <span>Advertising Info</span>
-                </button>
             </div>
         </div>
 
-        <!-- Menu Footer -->
         <div class="menu-footer">
             <p>Crafted with <i class="fas fa-heart"></i> by Shubham</p>
             <div class="menu-social">
                 <a href="https://www.instagram.com/i.shubham0210/" target="_blank">
                     <i class="fab fa-instagram"></i>
-                </a>
-                <a href="https://github.com/" target="_blank">
-                    <i class="fab fa-github"></i>
-                </a>
-                <a href="mailto:contact@example.com">
-                    <i class="fas fa-envelope"></i>
                 </a>
             </div>
         </div>
@@ -234,30 +142,13 @@
     <!-- Overlay for menu -->
     <div class="menu-overlay" id="menu-overlay"></div>
 
-    <!-- Main Video Container -->
     <div class="video-container">
         <!-- YouTube Player -->
         <div id="youtube-player">
             <iframe id="youtube-iframe" src=""
                 allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-                allowfullscreen frameborder="0"
-                title="YouTube video player">
+                allowfullscreen frameborder="0">
             </iframe>
-        </div>
-
-        <!-- Mid-content Ad -->
-        <div class="ad-container ad-mid-content">
-            <div class="ad-label">Advertisement</div>
-            <!-- AdSense Ad Unit 3: Responsive -->
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-YOUR_PUBLISHER_ID"
-                 data-ad-slot="YOUR_RESPONSIVE_SLOT"
-                 data-ad-format="auto"
-                 data-full-width-responsive="true"></ins>
-            <script>
-                (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
         </div>
 
         <!-- YouTube API Loading -->
@@ -322,24 +213,9 @@
                 <span>PiP</span>
             </button>
             <button class="share-btn" id="share-button" aria-label="Share Video">
-                <i class="fas fa-share-alt"></i>
-                <span>Share</span>
-            </button>
-        </div>
-        
-        <!-- Bottom Ad -->
-        <div class="ad-container ad-bottom">
-            <div class="ad-label">Advertisement</div>
-            <!-- AdSense Ad Unit 4: Banner -->
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-YOUR_PUBLISHER_ID"
-                 data-ad-slot="YOUR_BANNER_SLOT"
-                 data-ad-format="horizontal"
-                 data-full-width-responsive="true"></ins>
-            <script>
-                (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
+    <i class="fas fa-share-alt"></i>
+    <span>Share</span>
+</button>
         </div>
     </div>
 
@@ -400,162 +276,8 @@
         </div>
     </div>
 
-    <!-- Ad Preferences Modal -->
-    <div id="ad-preferences-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h3><i class="fas fa-ad"></i> Ad Preferences</h3>
-            <div class="modal-section">
-                <p>Ads help support the development and maintenance of INFINITY Player.</p>
-                
-                <div class="preference-option">
-                    <input type="checkbox" id="ad-personalization" checked>
-                    <label for="ad-personalization">Allow personalized ads (Recommended)</label>
-                    <p class="preference-description">Personalized ads are more relevant to you and support us better.</p>
-                </div>
-                
-                <div class="preference-option">
-                    <input type="checkbox" id="ad-frequency" checked>
-                    <label for="ad-frequency">Show ads (Disable to use premium features)</label>
-                    <p class="preference-description">Ads are necessary to keep the player free for everyone.</p>
-                </div>
-                
-                <div class="preference-option">
-                    <button id="refresh-ads" class="preference-btn">
-                        <i class="fas fa-sync-alt"></i> Refresh Ads
-                    </button>
-                    <button id="report-ad" class="preference-btn">
-                        <i class="fas fa-flag"></i> Report Inappropriate Ad
-                    </button>
-                </div>
-                
-                <div class="support-alternative">
-                    <h4><i class="fas fa-gem"></i> Ad-Free Experience</h4>
-                    <p>Consider supporting us directly for an ad-free experience:</p>
-                    <div class="support-buttons">
-                        <a href="https://www.buymeacoffee.com" target="_blank" class="donate-btn">
-                            <i class="fas fa-coffee"></i> Donate $3
-                        </a>
-                        <a href="https://www.patreon.com" target="_blank" class="donate-btn">
-                            <i class="fab fa-patreon"></i> Monthly Support
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Advertising Info Modal -->
-    <div id="advertising-info-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h3><i class="fas fa-ad"></i> Advertising Information</h3>
-            <div class="modal-section">
-                <h4><i class="fas fa-question-circle"></i> Why Ads?</h4>
-                <p>INFINITY Player is a free service. Ads help cover:</p>
-                <ul>
-                    <li>Hosting and server costs</li>
-                    <li>Development time and maintenance</li>
-                    <li>Future feature development</li>
-                    <li>Keeping the service free for all users</li>
-                </ul>
-            </div>
-            
-            <div class="modal-section">
-                <h4><i class="fas fa-shield-alt"></i> Privacy & Ads</h4>
-                <p>We use Google AdSense for advertising because:</p>
-                <ul>
-                    <li>It's a trusted Google service</li>
-                    <li>Ads are reviewed for quality</li>
-                    <li>You can control ad personalization</li>
-                    <li>We don't collect personal data for ads</li>
-                </ul>
-                <p>All ads are served by Google, not directly by us.</p>
-            </div>
-            
-            <div class="modal-section">
-                <h4><i class="fas fa-balance-scale"></i> Ad Policies</h4>
-                <ul>
-                    <li>No intrusive pop-up ads</li>
-                    <li>No ads that block video content</li>
-                    <li>No autoplay video ads with sound</li>
-                    <li>Respect for user experience</li>
-                </ul>
-                <p>If you see an inappropriate ad, please report it using the "Report Ad" button.</p>
-            </div>
-            
-            <div class="modal-section">
-                <h4><i class="fas fa-heart"></i> Supporting Without Ads</h4>
-                <p>If you prefer no ads, you can:</p>
-                <ul>
-                    <li>Use an ad blocker (but please whitelist us if you can)</li>
-                    <li>Make a donation to support development</li>
-                    <li>Share the player with others</li>
-                    <li>Provide feedback to improve the service</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="site-footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h4><i class="fas fa-infinity"></i> INFINITY Player</h4>
-                <p>A privacy-focused YouTube player with minimal interface.</p>
-                <div class="footer-social">
-                    <a href="https://www.instagram.com/i.shubham0210/" target="_blank" aria-label="Instagram">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    <a href="https://github.com/" target="_blank" aria-label="GitHub">
-                        <i class="fab fa-github"></i>
-                    </a>
-                    <a href="mailto:contact@example.com" aria-label="Email">
-                        <i class="fas fa-envelope"></i>
-                    </a>
-                </div>
-            </div>
-            
-            <div class="footer-section">
-                <h4>Legal</h4>
-                <ul>
-                    <li><a href="#" id="footer-privacy">Privacy Policy</a></li>
-                    <li><a href="#" id="footer-terms">Terms of Use</a></li>
-                    <li><a href="#" id="footer-cookies">Cookie Policy</a></li>
-                    <li><a href="#" id="footer-advertising">Advertising</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer-section">
-                <h4>Support</h4>
-                <ul>
-                    <li><a href="#" id="footer-help">Help & FAQ</a></li>
-                    <li><a href="#" id="footer-contact">Contact Us</a></li>
-                    <li><a href="#" id="footer-bug">Report Bug</a></li>
-                    <li><a href="#" id="footer-feature">Request Feature</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer-section">
-                <h4>About</h4>
-                <ul>
-                    <li><a href="#" id="footer-about">About Us</a></li>
-                    <li><a href="#" id="footer-features">Features</a></li>
-                    <li><a href="#" id="footer-changelog">Changelog</a></li>
-                    <li><a href="#" id="footer-roadmap">Roadmap</a></li>
-                </ul>
-            </div>
-        </div>
-        
-        <div class="footer-bottom">
-            <p>&copy; 2024 INFINITY YouTube Player. All rights reserved. | Crafted with <i class="fas fa-heart"></i> by Shubham</p>
-            <p class="footer-disclaimer">This site is not affiliated with YouTube, Google, or Alphabet Inc. All videos are property of their respective owners.</p>
-        </div>
-    </footer>
-
-    <!-- Scripts -->
+    <!-- FIXED: Updated script sources -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script src="script.js"></script>
-    <script src="ads.js"></script>
 </body>
 </html>
