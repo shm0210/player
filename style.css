@@ -62,7 +62,6 @@ body {
     z-index: -1;
 }
 
-/* Legal Disclaimer */
 .legal-disclaimer {
     background: rgba(255, 193, 7, 0.1);
     border-left: 4px solid #ffc107;
@@ -80,7 +79,6 @@ body {
     margin: 0;
 }
 
-/* Menu Toggle Button */
 .menu-toggle {
     position: fixed;
     top: 20px;
@@ -122,7 +120,6 @@ body {
     box-shadow: 0 0 0 4px rgba(0, 224, 255, 0.3);
 }
 
-/* Sidebar Menu */
 .sidebar {
     display: none;
     position: fixed;
@@ -208,7 +205,6 @@ body {
     opacity: 0.9;
 }
 
-/* Owner Profile in Menu */
 .owner-profile-menu {
     display: flex;
     align-items: center;
@@ -256,7 +252,6 @@ body {
     transform: scale(1.1);
 }
 
-/* Recent Videos in Menu */
 .menu-history {
     max-height: 250px;
     overflow-y: auto;
@@ -318,7 +313,6 @@ body {
     left: 0;
 }
 
-/* Better history item layout */
 .history-details {
     flex: 1;
     min-width: 0;
@@ -340,7 +334,6 @@ body {
     margin-bottom: 2px;
 }
 
-/* History duration styling */
 .history-duration {
     font-size: 0.7rem;
     color: var(--button-bg);
@@ -367,7 +360,6 @@ body {
     font-size: 0.9rem;
 }
 
-/* Menu Options */
 .menu-options {
     display: flex;
     flex-direction: column;
@@ -399,7 +391,6 @@ body {
     color: var(--button-bg);
 }
 
-/* Menu Footer */
 .menu-footer {
     margin-top: auto;
     padding: 25px;
@@ -432,7 +423,6 @@ body {
     transform: scale(1.1);
 }
 
-/* Menu Overlay */
 .menu-overlay {
     position: fixed;
     top: 0;
@@ -449,7 +439,6 @@ body {
     display: block;
 }
 
-/* Video Container */
 .video-container {
     width: 100%;
     max-width: 900px;
@@ -477,7 +466,6 @@ body {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
-/* YouTube API Loading */
 #api-loading {
     background: rgba(0, 224, 255, 0.1);
     color: var(--button-bg);
@@ -494,7 +482,6 @@ body {
     margin-right: 10px;
 }
 
-/* Video Info */
 .video-info {
     margin: 20px 0;
     text-align: left;
@@ -590,7 +577,6 @@ body {
     transform: scale(1.1);
 }
 
-/* Input Group */
 .input-group {
     margin: 25px 0;
     display: flex;
@@ -644,7 +630,6 @@ body {
     transform: translateY(0);
 }
 
-/* Loading Animation */
 #loading {
     display: none;
     align-items: center;
@@ -683,7 +668,6 @@ body {
     to { transform: rotate(360deg); }
 }
 
-/* Messages */
 .message {
     margin: 15px 0;
     font-size: 0.9rem;
@@ -710,7 +694,6 @@ body {
     border-left: 4px solid var(--success-color);
 }
 
-/* Controls */
 .controls {
     margin: 25px 0 0;
     display: flex;
@@ -760,7 +743,6 @@ body {
     cursor: not-allowed;
 }
 
-/* Modal */
 .modal {
     display: none;
     position: fixed;
@@ -821,7 +803,6 @@ body {
     color: var(--button-bg);
 }
 
-/* Modal Content Styles */
 .modal-section {
     margin-bottom: 25px;
 }
@@ -880,7 +861,6 @@ body {
     margin-top: 10px;
 }
 
-/* Contact cards */
 .contact-cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -975,7 +955,6 @@ body {
     flex: 1;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .sidebar {
         width: 280px;
@@ -1068,8 +1047,7 @@ body {
         padding: 16px;
     }
 }
-
-/* Touch Optimizations */
+    
 @media (hover: none) and (pointer: coarse) {
     .menu-toggle,
     .controls button,
