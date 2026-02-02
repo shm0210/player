@@ -62,6 +62,7 @@ body {
     z-index: -1;
 }
 
+/* Legal Disclaimer */
 .legal-disclaimer {
     background: rgba(255, 193, 7, 0.1);
     border-left: 4px solid #ffc107;
@@ -79,6 +80,7 @@ body {
     margin: 0;
 }
 
+/* Menu Toggle Button */
 .menu-toggle {
     position: fixed;
     top: 20px;
@@ -120,6 +122,7 @@ body {
     box-shadow: 0 0 0 4px rgba(0, 224, 255, 0.3);
 }
 
+/* Sidebar Menu */
 .sidebar {
     display: none;
     position: fixed;
@@ -205,6 +208,7 @@ body {
     opacity: 0.9;
 }
 
+/* Owner Profile in Menu */
 .owner-profile-menu {
     display: flex;
     align-items: center;
@@ -252,6 +256,7 @@ body {
     transform: scale(1.1);
 }
 
+/* Recent Videos in Menu */
 .menu-history {
     max-height: 250px;
     overflow-y: auto;
@@ -313,6 +318,7 @@ body {
     left: 0;
 }
 
+/* Better history item layout */
 .history-details {
     flex: 1;
     min-width: 0;
@@ -334,6 +340,7 @@ body {
     margin-bottom: 2px;
 }
 
+/* History duration styling */
 .history-duration {
     font-size: 0.7rem;
     color: var(--button-bg);
@@ -360,6 +367,7 @@ body {
     font-size: 0.9rem;
 }
 
+/* Menu Options */
 .menu-options {
     display: flex;
     flex-direction: column;
@@ -391,6 +399,7 @@ body {
     color: var(--button-bg);
 }
 
+/* Menu Footer */
 .menu-footer {
     margin-top: auto;
     padding: 25px;
@@ -423,6 +432,7 @@ body {
     transform: scale(1.1);
 }
 
+/* Menu Overlay */
 .menu-overlay {
     position: fixed;
     top: 0;
@@ -439,6 +449,7 @@ body {
     display: block;
 }
 
+/* Video Container */
 .video-container {
     width: 100%;
     max-width: 900px;
@@ -466,6 +477,7 @@ body {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
+/* YouTube API Loading */
 #api-loading {
     background: rgba(0, 224, 255, 0.1);
     color: var(--button-bg);
@@ -482,6 +494,7 @@ body {
     margin-right: 10px;
 }
 
+/* Video Info */
 .video-info {
     margin: 20px 0;
     text-align: left;
@@ -577,6 +590,7 @@ body {
     transform: scale(1.1);
 }
 
+/* Input Group */
 .input-group {
     margin: 25px 0;
     display: flex;
@@ -630,6 +644,7 @@ body {
     transform: translateY(0);
 }
 
+/* Loading Animation */
 #loading {
     display: none;
     align-items: center;
@@ -668,6 +683,7 @@ body {
     to { transform: rotate(360deg); }
 }
 
+/* Messages */
 .message {
     margin: 15px 0;
     font-size: 0.9rem;
@@ -694,6 +710,7 @@ body {
     border-left: 4px solid var(--success-color);
 }
 
+/* Controls */
 .controls {
     margin: 25px 0 0;
     display: flex;
@@ -743,6 +760,7 @@ body {
     cursor: not-allowed;
 }
 
+/* Modal */
 .modal {
     display: none;
     position: fixed;
@@ -803,6 +821,7 @@ body {
     color: var(--button-bg);
 }
 
+/* Modal Content Styles */
 .modal-section {
     margin-bottom: 25px;
 }
@@ -861,6 +880,7 @@ body {
     margin-top: 10px;
 }
 
+/* Contact cards */
 .contact-cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -955,6 +975,7 @@ body {
     flex: 1;
 }
 
+/* Responsive Design */
 @media (max-width: 768px) {
     .sidebar {
         width: 280px;
@@ -1047,7 +1068,8 @@ body {
         padding: 16px;
     }
 }
-    
+
+/* Touch Optimizations */
 @media (hover: none) and (pointer: coarse) {
     .menu-toggle,
     .controls button,
@@ -1074,461 +1096,4 @@ body {
 
 .share-btn:hover {
     background: #138496;
-}
-
-/* ============================
-   INFINITY Player - Ad Styles
-   ============================ */
-
-/* Ad Containers */
-.ad-container {
-    margin: 20px auto;
-    text-align: center;
-    overflow: hidden;
-    border-radius: 10px;
-    background: var(--card-bg);
-    padding: 15px;
-    position: relative;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.ad-container:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-}
-
-/* Ad Label */
-.ad-label {
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.5);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 10px;
-    display: block;
-    text-align: left;
-    font-weight: 600;
-}
-
-/* Specific Ad Positions */
-.ad-top-banner {
-    max-width: 900px;
-    margin: 0 auto 30px;
-    padding: 20px;
-    background: linear-gradient(135deg, rgba(0, 224, 255, 0.05), rgba(0, 196, 255, 0.05));
-}
-
-.ad-sidebar {
-    margin: 15px 0;
-    background: rgba(0, 0, 0, 0.2);
-}
-
-.ad-mid-content {
-    margin: 25px auto;
-    max-width: 800px;
-}
-
-.ad-bottom {
-    margin: 30px auto 0;
-    max-width: 900px;
-}
-
-/* Ad Fallback Content */
-.ad-fallback {
-    display: none;
-    padding: 20px;
-    background: rgba(0, 224, 255, 0.1);
-    border-radius: 8px;
-    margin-top: 15px;
-    border: 1px dashed rgba(0, 224, 255, 0.3);
-}
-
-.ad-fallback p {
-    margin-bottom: 15px;
-    color: var(--text-color);
-    font-size: 0.9rem;
-}
-
-.support-link {
-    display: inline-block;
-    background: var(--button-bg);
-    color: #000;
-    padding: 10px 20px;
-    border-radius: 30px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    font-size: 0.9rem;
-}
-
-.support-link:hover {
-    background: var(--button-hover-bg);
-    transform: translateY(-2px);
-}
-
-.support-options {
-    display: none;
-    margin-top: 15px;
-    text-align: center;
-}
-
-.support-btn {
-    display: block;
-    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-    color: white;
-    padding: 12px 20px;
-    border-radius: 30px;
-    text-decoration: none;
-    margin: 10px 0;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    font-size: 0.9rem;
-}
-
-.support-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
-}
-
-.support-btn:nth-child(2) {
-    background: linear-gradient(135deg, #f96854, #e74c3c);
-}
-
-/* Premium Message */
-.premium-message {
-    padding: 30px;
-    text-align: center;
-}
-
-.premium-content {
-    background: linear-gradient(135deg, rgba(155, 89, 182, 0.1), rgba(142, 68, 173, 0.1));
-    padding: 30px;
-    border-radius: 10px;
-    border: 1px solid rgba(155, 89, 182, 0.3);
-}
-
-.premium-content i {
-    font-size: 3rem;
-    color: #9b59b6;
-    margin-bottom: 20px;
-}
-
-.premium-content h4 {
-    color: #9b59b6;
-    margin-bottom: 10px;
-    font-size: 1.2rem;
-}
-
-.premium-content p {
-    color: var(--text-color);
-    margin-bottom: 5px;
-    font-size: 1rem;
-}
-
-.premium-content small {
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.8rem;
-}
-
-/* Ad Blocker Message */
-.adblock-message {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: rgba(255, 71, 87, 0.9);
-    backdrop-filter: blur(10px);
-    color: white;
-    padding: 15px 20px;
-    border-radius: 10px;
-    z-index: 10000;
-    max-width: 350px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-    animation: slideInRight 0.3s ease-out;
-}
-
-@keyframes slideInRight {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-.adblock-content {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.adblock-content i {
-    font-size: 1.5rem;
-}
-
-.adblock-content p {
-    flex: 1;
-    margin: 0;
-    font-size: 0.9rem;
-    line-height: 1.4;
-}
-
-.adblock-content a {
-    color: white;
-    text-decoration: underline;
-    font-weight: 600;
-}
-
-.close-adblock-message {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-}
-
-.close-adblock-message:hover {
-    opacity: 1;
-}
-
-/* Ad Messages */
-.ad-message {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 15px 25px;
-    border-radius: 10px;
-    z-index: 10000;
-    backdrop-filter: blur(10px);
-    animation: slideInDown 0.3s ease-out;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    max-width: 300px;
-}
-
-@keyframes slideInDown {
-    from {
-        transform: translateY(-100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-.ad-message.success-message {
-    background: rgba(46, 204, 113, 0.9);
-    color: white;
-    border-left: 4px solid #27ae60;
-}
-
-.ad-message.info-message {
-    background: rgba(52, 152, 219, 0.9);
-    color: white;
-    border-left: 4px solid #2980b9;
-}
-
-.ad-message.error-message {
-    background: rgba(231, 76, 60, 0.9);
-    color: white;
-    border-left: 4px solid #c0392b;
-}
-
-/* Preference Modal Styles */
-.preference-option {
-    margin: 20px 0;
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-}
-
-.preference-option input[type="checkbox"] {
-    margin-right: 10px;
-    transform: scale(1.2);
-}
-
-.preference-option label {
-    font-weight: 600;
-    color: var(--text-color);
-    cursor: pointer;
-}
-
-.preference-description {
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.6);
-    margin: 8px 0 0 25px;
-    line-height: 1.4;
-}
-
-.preference-btn {
-    background: var(--button-bg);
-    color: #000;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 30px;
-    margin: 5px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.preference-btn:hover {
-    background: var(--button-hover-bg);
-    transform: translateY(-2px);
-}
-
-.preference-btn:nth-child(2) {
-    background: rgba(255, 71, 87, 0.9);
-    color: white;
-}
-
-.preference-btn:nth-child(2):hover {
-    background: rgba(255, 71, 87, 1);
-}
-
-.support-alternative {
-    margin-top: 30px;
-    padding: 20px;
-    background: linear-gradient(135deg, rgba(155, 89, 182, 0.1), rgba(142, 68, 173, 0.1));
-    border-radius: 10px;
-    border: 1px solid rgba(155, 89, 182, 0.3);
-}
-
-.support-alternative h4 {
-    color: #9b59b6;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.support-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 15px;
-    flex-wrap: wrap;
-}
-
-.donate-btn {
-    flex: 1;
-    min-width: 140px;
-    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-    color: white;
-    padding: 12px 20px;
-    border-radius: 30px;
-    text-decoration: none;
-    text-align: center;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.donate-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
-}
-
-.donate-btn:nth-child(2) {
-    background: linear-gradient(135deg, #f96854, #e74c3c);
-}
-
-/* Footer Ads (if needed) */
-.footer-ad {
-    margin-top: 30px;
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-}
-
-/* Responsive Ads */
-@media (max-width: 768px) {
-    .ad-top-banner {
-        margin: 0 auto 20px;
-        padding: 15px;
-    }
-    
-    .ad-sidebar {
-        display: none; /* Hide sidebar ads on mobile */
-    }
-    
-    .ad-mid-content {
-        margin: 20px auto;
-    }
-    
-    .ad-container {
-        margin: 15px auto;
-        padding: 12px;
-    }
-    
-    .adblock-message {
-        bottom: 10px;
-        right: 10px;
-        left: 10px;
-        max-width: none;
-    }
-    
-    .support-buttons {
-        flex-direction: column;
-    }
-    
-    .donate-btn {
-        min-width: 100%;
-    }
-}
-
-@media (max-width: 480px) {
-    .ad-top-banner {
-        margin: 0 auto 15px;
-        padding: 10px;
-    }
-    
-    .ad-message {
-        top: 10px;
-        right: 10px;
-        left: 10px;
-        max-width: none;
-    }
-}
-
-/* Print Styles - Hide Ads */
-@media print {
-    .ad-container,
-    .adblock-message,
-    .ad-message {
-        display: none !important;
-    }
-}
-
-/* Reduced Motion */
-@media (prefers-reduced-motion: reduce) {
-    .ad-container,
-    .support-link,
-    .support-btn,
-    .preference-btn,
-    .donate-btn {
-        transition: none;
-    }
-    
-    .adblock-message,
-    .ad-message {
-        animation: none;
-    }
-}
-
-/* High Contrast Mode */
-@media (prefers-contrast: high) {
-    .ad-container {
-        border: 2px solid currentColor;
-    }
-    
-    .ad-label {
-        color: currentColor;
-    }
 }
