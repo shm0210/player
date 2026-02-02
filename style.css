@@ -1075,3 +1075,80 @@ body {
 .share-btn:hover {
     background: #138496;
 }
+
+/* AdSense Styles */
+.ad-container {
+    margin: 20px 0;
+    text-align: center;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ad-label {
+    font-size: 0.75rem;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-ad {
+    max-width: 900px;
+    margin: 10px auto 20px;
+    position: relative;
+    z-index: 10;
+}
+
+.video-bottom-ad {
+    max-width: 900px;
+    margin: 20px auto;
+}
+
+.sidebar-ad {
+    margin: 15px 25px;
+    border-radius: 8px;
+}
+
+/* AdSense Responsive */
+.ad-container ins {
+    display: block !important;
+    min-height: 100px;
+    min-width: 300px;
+}
+
+@media (max-width: 768px) {
+    .ad-container {
+        margin: 15px 0;
+    }
+    
+    .ad-container ins {
+        min-height: 50px;
+        min-width: 320px;
+    }
+}
+
+/* Ad toggle button (optional) */
+.ad-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--button-bg);
+    color: #000;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    z-index: 1000;
+    opacity: 0.7;
+    transition: var(--transition-speed);
+}
+
+.ad-toggle:hover {
+    opacity: 1;
+    transform: scale(1.05);
+}
