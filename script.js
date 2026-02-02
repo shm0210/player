@@ -1,6 +1,6 @@
 // ============================
 // INFINITY YouTube Player JS
-// Complete Fixed Version
+// Enhanced Version with Fixed Menu
 // ============================
 
 // --- Element References ---
@@ -19,6 +19,7 @@ const videoChannel = document.getElementById('video-channel');
 const videoDuration = document.getElementById('video-duration');
 const videoViews = document.getElementById('video-views');
 const videoThumbnail = document.getElementById('video-thumbnail');
+const shareButton = document.getElementById('share-button') || document.createElement('button');
 
 // Menu Elements
 const menuToggle = document.getElementById('menu-toggle');
@@ -57,7 +58,6 @@ if (window.YT && window.YT.loaded) {
     ytAPILoaded = true;
     console.log("✅ YouTube API already loaded");
 } else {
-    // Create callback for when API loads
     window.onYouTubeIframeAPIReady = function() {
         ytAPILoaded = true;
         console.log("✅ YouTube API Ready");
@@ -69,78 +69,69 @@ function initTheme() {
     document.body.classList.toggle('dark-mode', isDarkMode);
     themeStatus.textContent = isDarkMode ? "Dark" : "Light";
     
-    // Update theme toggle icon
     const icon = themeMenuToggle.querySelector('i');
-    if (icon) {
-        icon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
-    }
+    icon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
 }
 
 function toggleTheme() {
     isDarkMode = !isDarkMode;
     localStorage.setItem('darkMode', isDarkMode);
     initTheme();
-    showSuccess(isDarkMode ? "🌙 Dark theme enabled" : "☀️ Light theme enabled");
+    showSuccess(isDarkMode ? "Dark theme enabled" : "Light theme enabled");
 }
 
-// --- Menu System ---
+// --- Menu System (FIXED) ---
 function toggleMenu() {
-    isMenuOpen = !isMenuOpen;
-    
     if (isMenuOpen) {
-        // Show menu
-        sidebar.style.display = 'flex';
-        menuOverlay.style.display = 'block';
-        
-        // Trigger animation
-        setTimeout(() => {
-            sidebar.classList.add('show');
-            menuOverlay.classList.add('show');
-            menuToggle.classList.add('open');
-        }, 10);
-        
-        updateMenuHistory();
+        closeMenu();
+    } else {
+        openMenu();
+    }
+}
+
+function openMenu() {
+    isMenuOpen = true;
+    
+    // First set display to block for overlay
+    menuOverlay.style.display = 'block';
+    sidebar.style.display = 'flex';
+    
+    // Force reflow to ensure CSS transition works
+    void sidebar.offsetWidth;
+    
+    // Add show classes to trigger animations
+    setTimeout(() => {
+        sidebar.classList.add('show');
+        menuOverlay.classList.add('show');
+        menuToggle.classList.add('open');
         menuToggle.innerHTML = '<i class="fas fa-times"></i>';
         menuToggle.setAttribute('aria-label', 'Close Menu');
-        menuToggle.style.transform = 'rotate(90deg)';
-        
-        checkNewVideosInHistory();
-    } else {
-        // Hide menu
-        sidebar.classList.remove('show');
-        menuOverlay.classList.remove('show');
-        menuToggle.classList.remove('open');
-        
-        setTimeout(() => {
-            sidebar.style.display = 'none';
-            menuOverlay.style.display = 'none';
-        }, 300);
-        
-        menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
-        menuToggle.setAttribute('aria-label', 'Open Menu');
-        menuToggle.style.transform = 'rotate(0deg)';
-    }
+    }, 10);
     
-    document.body.style.overflow = isMenuOpen ? 'hidden' : '';
+    updateMenuHistory();
+    document.body.style.overflow = 'hidden';
+    
+    checkNewVideosInHistory();
 }
 
 function closeMenu() {
-    if (isMenuOpen) {
-        isMenuOpen = false;
-        sidebar.classList.remove('show');
-        menuOverlay.classList.remove('show');
-        menuToggle.classList.remove('open');
-        
-        setTimeout(() => {
-            sidebar.style.display = 'none';
-            menuOverlay.style.display = 'none';
-        }, 300);
-        
+    if (!isMenuOpen) return;
+    
+    isMenuOpen = false;
+    
+    // Remove show classes to trigger closing animations
+    sidebar.classList.remove('show');
+    menuOverlay.classList.remove('show');
+    menuToggle.classList.remove('open');
+    
+    // Wait for animation to complete before hiding
+    setTimeout(() => {
+        sidebar.style.display = 'none';
+        menuOverlay.style.display = 'none';
         menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
         menuToggle.setAttribute('aria-label', 'Open Menu');
-        menuToggle.style.transform = 'rotate(0deg)';
         document.body.style.overflow = '';
-    }
+    }, 300);
 }
 
 function checkNewVideosInHistory() {
@@ -157,7 +148,7 @@ function checkNewVideosInHistory() {
     ).length;
     
     if (newVideos > 0) {
-        showSuccess(`📹 ${newVideos} new video${newVideos > 1 ? 's' : ''} in history`);
+        showSuccess(`${newVideos} new video${newVideos > 1 ? 's' : ''} in history`);
     }
     
     localStorage.setItem('lastMenuOpen', new Date().toISOString());
@@ -170,7 +161,6 @@ async function fetchVideoMetadata(videoId) {
     try {
         apiLoadingElement.style.display = 'flex';
         
-        // Try to get from cache first
         const cachedData = getCachedVideoData(videoId);
         if (cachedData) {
             updateVideoInfoUI(cachedData);
@@ -178,18 +168,13 @@ async function fetchVideoMetadata(videoId) {
             return;
         }
         
-        // Fetch from YouTube oEmbed API (no API key needed)
         const response = await fetch(
             `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`
         );
         
-        if (!response.ok) {
-            throw new Error('Failed to fetch video info');
-        }
+        if (!response.ok) throw new Error('Failed to fetch video info');
         
         const data = await response.json();
-        
-        // Create video data object
         const videoData = {
             id: videoId,
             title: data.title,
@@ -200,13 +185,8 @@ async function fetchVideoMetadata(videoId) {
             views: null
         };
         
-        // Cache the data
         cacheVideoData(videoId, videoData);
-        
-        // Update UI
         updateVideoInfoUI(videoData);
-        
-        // Try to fetch duration using alternative method
         await fetchVideoDuration(videoId);
         
     } catch (error) {
@@ -225,7 +205,6 @@ async function fetchVideoMetadata(videoId) {
 
 async function fetchVideoDuration(videoId) {
     try {
-        // Fallback method using noembed
         const response = await fetch(
             `https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`
         );
@@ -233,10 +212,7 @@ async function fetchVideoDuration(videoId) {
         if (response.ok) {
             const data = await response.json();
             if (data.duration) {
-                // Update cached data
                 updateCachedVideoDuration(videoId, data.duration);
-                
-                // Update UI
                 videoDuration.textContent = formatDuration(data.duration);
             }
         }
@@ -248,37 +224,21 @@ async function fetchVideoDuration(videoId) {
 function updateVideoInfoUI(videoData) {
     currentVideoData = videoData;
     
-    // Update title
     videoTitle.textContent = videoData.title || "Video loaded";
-    
-    // Update channel
     videoChannel.textContent = videoData.author || "YouTube";
     
-    // Update thumbnail
     if (videoData.thumbnail) {
         videoThumbnail.innerHTML = `<img src="${videoData.thumbnail}" alt="${videoData.title}" loading="lazy">`;
     } else {
         videoThumbnail.innerHTML = '<i class="fas fa-play"></i>';
     }
     
-    // Update duration if available
-    if (videoData.duration) {
-        videoDuration.textContent = formatDuration(videoData.duration);
-    } else {
-        videoDuration.textContent = "Loading...";
-    }
-    
-    // Update views if available
-    if (videoData.views) {
-        videoViews.textContent = formatViews(videoData.views);
-    } else {
-        videoViews.textContent = "Loading views...";
-    }
+    videoDuration.textContent = videoData.duration ? formatDuration(videoData.duration) : "Loading...";
+    videoViews.textContent = videoData.views ? formatViews(videoData.views) : "Loading views...";
 }
 
 function formatDuration(seconds) {
     if (!seconds) return "0:00";
-    
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
@@ -286,12 +246,8 @@ function formatDuration(seconds) {
 
 function formatViews(views) {
     if (!views) return "0 views";
-    
-    if (views >= 1000000) {
-        return (views / 1000000).toFixed(1) + 'M views';
-    } else if (views >= 1000) {
-        return (views / 1000).toFixed(1) + 'K views';
-    }
+    if (views >= 1000000) return (views / 1000000).toFixed(1) + 'M views';
+    if (views >= 1000) return (views / 1000).toFixed(1) + 'K views';
     return views.toLocaleString() + ' views';
 }
 
@@ -299,16 +255,10 @@ function formatViews(views) {
 function cacheVideoData(videoId, data) {
     try {
         const cache = JSON.parse(localStorage.getItem('videoCache') || '{}');
-        cache[videoId] = {
-            ...data,
-            cachedAt: new Date().toISOString()
-        };
+        cache[videoId] = { ...data, cachedAt: new Date().toISOString() };
         
-        // Keep only last 50 cached items
         const keys = Object.keys(cache);
-        if (keys.length > 50) {
-            delete cache[keys[0]];
-        }
+        if (keys.length > 50) delete cache[keys[0]];
         
         localStorage.setItem('videoCache', JSON.stringify(cache));
     } catch (error) {
@@ -320,8 +270,6 @@ function getCachedVideoData(videoId) {
     try {
         const cache = JSON.parse(localStorage.getItem('videoCache') || '{}');
         const cached = cache[videoId];
-        
-        // Check if cache is less than 24 hours old
         if (cached && new Date(cached.cachedAt) > new Date(Date.now() - 24 * 60 * 60 * 1000)) {
             return cached;
         }
@@ -358,7 +306,6 @@ function updateMenuHistory() {
         return;
     }
     
-    // Show only last 10 videos
     history.slice(0, 10).forEach((item) => {
         const historyItem = document.createElement('div');
         historyItem.className = 'history-item-menu';
@@ -405,13 +352,13 @@ function formatTimeAgo(timestamp) {
 // --- Status Handlers ---
 function showError(message) {
     errorMessageElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
-    errorMessageElement.style.display = 'flex';
+    errorMessageElement.style.display = 'block';
     setTimeout(() => (errorMessageElement.style.display = 'none'), 5000);
 }
 
 function showSuccess(message) {
     successMessageElement.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
-    successMessageElement.style.display = 'flex';
+    successMessageElement.style.display = 'block';
     setTimeout(() => (successMessageElement.style.display = 'none'), 3000);
 }
 
@@ -455,7 +402,6 @@ async function loadVideo() {
     currentVideoId = videoId;
     loadingElement.style.display = 'flex';
     
-    // Reset video info while loading
     videoTitle.textContent = "Loading...";
     videoChannel.textContent = "YouTube";
     videoDuration.textContent = "0:00";
@@ -463,27 +409,19 @@ async function loadVideo() {
     videoThumbnail.innerHTML = '<div class="loading-spinner" style="width: 30px; height: 30px;"></div>';
     
     try {
-        // Save to history first
         await saveToHistory(videoId, link);
-        
-        // Update menu history in real-time
         updateMenuHistory();
-        
-        // Fetch video metadata
         await fetchVideoMetadata(videoId);
         
-        // Load the video using nocookie domain
         const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&controls=1`;
         youtubeIframe.src = embedUrl;
         
-        showSuccess("🎬 Video loaded successfully");
+        showSuccess("Video loaded successfully");
         requestWakeLock();
+        updatePageURL(link);
         
-        // Add notification animation to menu toggle
         menuToggle.classList.add('has-notification');
-        setTimeout(() => {
-            menuToggle.classList.remove('has-notification');
-        }, 3000);
+        setTimeout(() => menuToggle.classList.remove('has-notification'), 3000);
         
     } catch (error) {
         showError("Failed to load video");
@@ -497,16 +435,13 @@ async function loadVideo() {
 async function saveToHistory(videoId, url) {
     try {
         const history = JSON.parse(localStorage.getItem('videoHistory') || '[]');
-        
-        // Check if already exists
         const existingIndex = history.findIndex(item => item.id === videoId);
+        
         if (existingIndex > -1) {
-            // Move to top if exists
             const existingItem = history.splice(existingIndex, 1)[0];
             existingItem.timestamp = new Date().toISOString();
             history.unshift(existingItem);
         } else {
-            // Add new with thumbnail
             history.unshift({
                 id: videoId,
                 url: url,
@@ -516,18 +451,11 @@ async function saveToHistory(videoId, url) {
             });
         }
         
-        // Keep only last 20 items
-        if (history.length > 20) {
-            history.length = 20;
-        }
-        
+        if (history.length > 20) history.length = 20;
         localStorage.setItem('videoHistory', JSON.stringify(history));
         
-        // Update title in history after metadata fetch
         if (currentVideoData) {
-            setTimeout(() => {
-                updateHistoryItemTitle(videoId, currentVideoData.title);
-            }, 1000);
+            setTimeout(() => updateHistoryItemTitle(videoId, currentVideoData.title), 1000);
         }
         
     } catch (error) {
@@ -543,11 +471,7 @@ function updateHistoryItemTitle(videoId, title) {
         if (itemIndex > -1) {
             history[itemIndex].title = title;
             localStorage.setItem('videoHistory', JSON.stringify(history));
-            
-            // Update menu if open
-            if (isMenuOpen) {
-                updateMenuHistory();
-            }
+            if (isMenuOpen) updateMenuHistory();
         }
     } catch (error) {
         console.error("Failed to update history title:", error);
@@ -558,7 +482,7 @@ function clearHistory() {
     if (confirm("Are you sure you want to clear all video history?")) {
         localStorage.removeItem('videoHistory');
         updateMenuHistory();
-        showSuccess("🗑️ History cleared successfully");
+        showSuccess("History cleared successfully");
     }
 }
 
@@ -572,16 +496,146 @@ async function copyVideoLink() {
     try {
         const videoUrl = `https://www.youtube.com/watch?v=${currentVideoId}`;
         await navigator.clipboard.writeText(videoUrl);
-        showSuccess("🔗 Video link copied to clipboard");
+        showSuccess("Video link copied to clipboard");
     } catch (error) {
-        // Fallback for browsers without clipboard API
         const textArea = document.createElement('textarea');
         textArea.value = `https://www.youtube.com/watch?v=${currentVideoId}`;
         document.body.appendChild(textArea);
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        showSuccess("🔗 Link copied!");
+        showSuccess("Link copied!");
+    }
+}
+
+// --- Share Video Function ---
+async function shareVideo() {
+    if (!currentVideoId) {
+        showError("No video loaded to share");
+        return;
+    }
+    
+    try {
+        const videoUrl = `https://www.youtube.com/watch?v=${currentVideoId}`;
+        const shareUrl = `${window.location.origin}${window.location.pathname}?v=${encodeURIComponent(videoUrl)}`;
+        const shareText = currentVideoData ? 
+            `Watch "${currentVideoData.title}" on INFINITY Player` : 
+            "Watch this video on INFINITY Player";
+        
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'INFINITY YouTube Player',
+                    text: shareText,
+                    url: shareUrl,
+                });
+                showSuccess("Shared successfully");
+                return;
+            } catch (shareError) {
+                console.log('Web Share API failed:', shareError);
+            }
+        }
+        
+        await copyToClipboard(shareUrl);
+        
+    } catch (error) {
+        console.error("Error sharing video:", error);
+        showError("Failed to share video");
+    }
+}
+
+// --- Helper for Clipboard ---
+async function copyToClipboard(text) {
+    try {
+        await navigator.clipboard.writeText(text);
+        showSuccess("Share link copied to clipboard");
+        return true;
+    } catch (error) {
+        try {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            const result = document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            if (result) {
+                showSuccess("Share link copied!");
+                return true;
+            } else {
+                showError("Failed to copy link");
+                return false;
+            }
+        } catch (fallbackError) {
+            showError("Failed to copy link");
+            return false;
+        }
+    }
+}
+
+// --- Auto-load from URL ---
+function autoLoadFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    const videoParam = params.get('v') || params.get('video') || params.get('url') || params.get('link');
+    
+    if (videoParam) {
+        try {
+            const decodedUrl = decodeURIComponent(videoParam);
+            if (isYouTubeLink(decodedUrl)) {
+                videoLinkInput.value = decodedUrl;
+                loadingElement.style.display = 'flex';
+                
+                setTimeout(() => {
+                    loadVideo();
+                    showSuccess("Video auto-loaded from URL");
+                }, 800);
+                
+                return true;
+            }
+        } catch (error) {
+            console.error("Error parsing URL parameter:", error);
+        }
+    }
+    
+    const videoIdParam = params.get('id') || params.get('vid');
+    if (videoIdParam) {
+        const youtubeUrl = `https://www.youtube.com/watch?v=${videoIdParam}`;
+        videoLinkInput.value = youtubeUrl;
+        loadingElement.style.display = 'flex';
+        
+        setTimeout(() => {
+            loadVideo();
+            showSuccess("Video auto-loaded from ID");
+        }, 800);
+        
+        return true;
+    }
+    
+    return false;
+}
+
+// --- Update Page URL for Sharing ---
+function updatePageURL(url) {
+    try {
+        const videoId = getYouTubeVideoId(url);
+        if (videoId) {
+            const newUrl = new URL(window.location.href);
+            const paramsToRemove = ['v', 'video', 'url', 'link', 'id', 'vid'];
+            paramsToRemove.forEach(param => newUrl.searchParams.delete(param));
+            newUrl.searchParams.set('v', url);
+            window.history.replaceState({}, document.title, newUrl.toString());
+            
+            if (currentVideoData && currentVideoData.title) {
+                document.title = `${currentVideoData.title} | INFINITY Player`;
+            }
+        }
+    } catch (error) {
+        console.error("Error updating URL:", error);
     }
 }
 
@@ -590,10 +644,10 @@ async function requestWakeLock() {
     if ('wakeLock' in navigator && !wakeLock) {
         try {
             wakeLock = await navigator.wakeLock.request('screen');
-            console.log("✅ Wake Lock activated");
+            console.log("Wake Lock activated");
             
             wakeLock.addEventListener('release', () => {
-                console.log("⚠️ Wake Lock released");
+                console.log("Wake Lock released");
                 wakeLock = null;
             });
             
@@ -612,52 +666,51 @@ function releaseWakeLock() {
 
 // --- Keyboard Shortcuts ---
 function handleKeyboardShortcuts(event) {
-    // Don't trigger shortcuts when typing in input
-    if (event.target.tagName === 'INPUT' || event.target.isContentEditable) {
-        return;
-    }
+    if (event.target.tagName === 'INPUT' || event.target.isContentEditable) return;
     
     switch (event.key.toLowerCase()) {
-        case 'm': // M for Menu
+        case 'm':
             event.preventDefault();
             toggleMenu();
             break;
-        case 'f': // F for Fullscreen
+        case 'f':
             event.preventDefault();
             toggleFullscreen();
             break;
-        case 'r': // R for Reset
+        case 'r':
             event.preventDefault();
             resetPlayer();
             break;
-        case 't': // T for Theme
+        case 't':
             event.preventDefault();
             toggleTheme();
             break;
-        case 'c': // C for Copy
+        case 'c':
             event.preventDefault();
             copyVideoLink();
             break;
-        case 'enter': // Enter to play
+        case 's':
+            event.preventDefault();
+            if (shareButton) shareVideo();
+            break;
+        case 'enter':
             if (document.activeElement !== videoLinkInput) {
                 event.preventDefault();
                 loadVideo();
             }
             break;
-        case '/': // / to focus search
+        case '/':
             event.preventDefault();
             if (!isMenuOpen) {
                 videoLinkInput.focus();
                 videoLinkInput.select();
             }
             break;
-        case 'h': // H for History
+        case 'h':
             event.preventDefault();
-            if (!isMenuOpen) {
-                toggleMenu();
-            }
+            if (!isMenuOpen) toggleMenu();
             break;
-        case 'escape': // ESC to close
+        case 'escape':
             event.preventDefault();
             if (isMenuOpen) {
                 closeMenu();
@@ -679,17 +732,15 @@ function toggleFullscreen() {
     
     if (!document.fullscreenElement) {
         const elem = youtubeIframe;
-        if (elem.requestFullscreen) {
-            elem.requestFullscreen();
-        } else if (elem.webkitRequestFullscreen) {
-            elem.webkitRequestFullscreen();
-        }
+        if (elem.requestFullscreen) elem.requestFullscreen();
+        else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+        else if (elem.mozRequestFullScreen) elem.mozRequestFullScreen();
+        else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
     } else {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-        }
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+        else if (document.msExitFullscreen) document.msExitFullscreen();
     }
 }
 
@@ -700,15 +751,21 @@ function resetPlayer() {
     currentVideoId = null;
     currentVideoData = null;
     
-    // Reset video info
     videoTitle.textContent = "No video loaded";
     videoChannel.textContent = "YouTube";
     videoDuration.textContent = "0:00";
     videoViews.textContent = "0 views";
     videoThumbnail.innerHTML = '<i class="fas fa-play"></i>';
     
+    document.title = "INFINITY YouTube Player";
+    
+    const newUrl = new URL(window.location.href);
+    const paramsToRemove = ['v', 'video', 'url', 'link', 'id', 'vid'];
+    paramsToRemove.forEach(param => newUrl.searchParams.delete(param));
+    window.history.replaceState({}, document.title, newUrl.toString());
+    
     releaseWakeLock();
-    showSuccess("🔄 Player reset");
+    showSuccess("Player reset");
 }
 
 // --- Modal System ---
@@ -742,6 +799,8 @@ const modalContents = {
                 <li><strong>Themes:</strong> Dark/Light mode support</li>
                 <li><strong>Video Info:</strong> Real-time metadata display</li>
                 <li><strong>Wake Lock:</strong> Screen stays on during playback</li>
+                <li><strong>Auto-load:</strong> Load videos directly from URL parameters</li>
+                <li><strong>Share:</strong> Generate shareable links</li>
             </ul>
         </div>
         
@@ -755,12 +814,13 @@ const modalContents = {
                 <span>YouTube API</span>
                 <span>LocalStorage</span>
                 <span>Wake Lock API</span>
+                <span>Web Share API</span>
             </div>
         </div>
         
         <div class="modal-signature">
-            <p><i class="fas fa-heart"></i> Crafted by Shubham</p>
-            <p class="version">v2.0 • Enhanced Edition</p>
+            <p>Crafted with <i class="fas fa-heart"></i> by Shubham</p>
+            <p class="version">v2.1 • Enhanced with Auto-Load & Share</p>
         </div>
     `,
     
@@ -886,7 +946,7 @@ const modalContents = {
         </div>
         
         <div class="modal-section">
-            <p class="thank-you">Thank you for using INFINITY Player! <i class="fas fa-heart"></i></p>
+            <p class="thank-you">Thank you for using INFINITY Player!</p>
         </div>
     `
 };
@@ -943,6 +1003,11 @@ function initializeEventListeners() {
     resetButton.addEventListener('click', resetPlayer);
     copyLinkButton.addEventListener('click', copyVideoLink);
     
+    // Share button (if exists)
+    if (shareButton && shareButton.id === 'share-button') {
+        shareButton.addEventListener('click', shareVideo);
+    }
+    
     // Keyboard shortcuts
     document.addEventListener('keydown', handleKeyboardShortcuts);
     
@@ -953,24 +1018,20 @@ function initializeEventListeners() {
     
     [infoModal, shortcutsModal].forEach(modal => {
         modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeModals();
-            }
+            if (e.target === modal) closeModals();
         });
     });
     
     // Wake lock release
     window.addEventListener('beforeunload', releaseWakeLock);
     document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'hidden') {
-            releaseWakeLock();
-        }
+        if (document.visibilityState === 'hidden') releaseWakeLock();
     });
     
     // Auto-focus input on page load
     window.addEventListener('load', () => {
         setTimeout(() => {
-            videoLinkInput.focus();
+            if (!videoLinkInput.value) videoLinkInput.focus();
         }, 500);
     });
 }
@@ -1012,21 +1073,6 @@ function initParticles() {
     }
 }
 
-// --- Auto-load from URL ---
-function autoLoadFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    const videoParam = params.get('v') || params.get('video') || params.get('url');
-    if (videoParam && isYouTubeLink(videoParam)) {
-        const decodedUrl = decodeURIComponent(videoParam);
-        videoLinkInput.value = decodedUrl;
-        
-        // Small delay to ensure everything is loaded
-        setTimeout(() => {
-            loadVideo();
-        }, 1000);
-    }
-}
-
 // --- Initialization ---
 function init() {
     initializeEventListeners();
@@ -1034,16 +1080,23 @@ function init() {
     updateMenuHistory();
     
     // Make sure menu starts closed
-    closeMenu();
+    sidebar.style.display = 'none';
+    menuOverlay.style.display = 'none';
     
-    autoLoadFromURL();
+    // Auto-load from URL
+    setTimeout(() => {
+        const loaded = autoLoadFromURL();
+        if (!loaded) {
+            console.log("No auto-load parameter found");
+        }
+    }, 500);
     
-    console.log("🎬 INFINITY Player v2.0 initialized");
-    console.log("📹 Features: YouTube API, Video Metadata, Enhanced Menu, Real-time Info");
-    console.log("🎨 Theme: " + (isDarkMode ? "Dark" : "Light"));
-    console.log("💾 History Items: " + (JSON.parse(localStorage.getItem('videoHistory') || '[]').length));
-    console.log("✅ Menu: Closed by default");
-    console.log("✅ Icons: Font Awesome with Unicode fallbacks");
+    console.log("INFINITY Player v2.1 initialized");
+    console.log("Features: YouTube API, Video Metadata, Enhanced Menu, Real-time Info");
+    console.log("New Features: Auto-load from URL, Share functionality");
+    console.log("Theme: " + (isDarkMode ? "Dark" : "Light"));
+    console.log("History Items: " + (JSON.parse(localStorage.getItem('videoHistory') || '[]').length));
+    console.log("Menu: Closed by default");
 }
 
 // Start the application

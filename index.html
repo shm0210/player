@@ -13,15 +13,16 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://shminfinity.fun/">
     
-    <!-- Fixed CSP Header -->
-    <meta http-equiv="Content-Security-Policy" 
-          content="default-src 'self'; 
-                   script-src 'self' https://cdn.jsdelivr.net https://www.youtube.com https://s.ytimg.com; 
-                   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; 
-                   img-src 'self' https: data: blob:;
-                   frame-src https://www.youtube-nocookie.com https://www.youtube.com;
-                   font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
-                   connect-src 'self' https://www.youtube.com https://noembed.com;">
+    <!-- FIXED: Updated Content Security Policy for Font Awesome -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self'; 
+        script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.youtube.com; 
+        style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com; 
+        img-src 'self' https: data: blob:; 
+        frame-src https://www.youtube-nocookie.com https://www.youtube.com; 
+        font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:;
+        connect-src 'self' https://www.youtube.com https://noembed.com https://img.youtube.com;
+    ">
     
     <!-- YouTube API -->
     <script src="https://www.youtube.com/iframe_api"></script>
@@ -31,8 +32,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome with proper attributes -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- FIXED: Use specific Font Awesome version with correct integrity hash -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
+          crossorigin="anonymous" referrerpolicy="no-referrer">
     
     <link rel="stylesheet" href="style.css">
 </head>
@@ -127,7 +130,7 @@
         </div>
 
         <div class="menu-footer">
-            <p><i class="fas fa-heart"></i> Crafted by Shubham</p>
+            <p>Crafted with <i class="fas fa-heart"></i> by Shubham</p>
             <div class="menu-social">
                 <a href="https://www.instagram.com/i.shubham0210/" target="_blank">
                     <i class="fab fa-instagram"></i>
@@ -209,13 +212,17 @@
                 <i class="fas fa-external-link-alt"></i>
                 <span>PiP</span>
             </button>
+            <button class="share-btn" id="share-button" aria-label="Share Video">
+    <i class="fas fa-share-alt"></i>
+    <span>Share</span>
+</button>
         </div>
     </div>
 
     <!-- Info Modal -->
     <div id="info-modal" class="modal">
         <div class="modal-content">
-            <span class="close-modal"><i class="fas fa-times"></i></span>
+            <span class="close-modal">&times;</span>
             <h3 id="modal-title">Information</h3>
             <div id="modal-content">
                 <p>Content will load here...</p>
@@ -226,7 +233,7 @@
     <!-- Keyboard Shortcuts Modal -->
     <div id="shortcuts-modal" class="modal">
         <div class="modal-content">
-            <span class="close-modal"><i class="fas fa-times"></i></span>
+            <span class="close-modal">&times;</span>
             <h3><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h3>
             <div class="shortcuts-grid">
                 <div class="shortcut-item">
@@ -269,6 +276,7 @@
         </div>
     </div>
 
+    <!-- FIXED: Updated script sources -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script src="script.js"></script>
 </body>
