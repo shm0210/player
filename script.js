@@ -1,6 +1,6 @@
 // ============================
 // INFINITY YouTube Player JS
-// Enhanced Version with Fixed Menu
+// Enhanced Version with Fixed Menu & History Titles
 // ============================
 
 // --- Element References ---
@@ -164,6 +164,8 @@ async function fetchVideoMetadata(videoId) {
         const cachedData = getCachedVideoData(videoId);
         if (cachedData) {
             updateVideoInfoUI(cachedData);
+            // Update history with correct title if needed
+            updateHistoryWithVideoData(videoId, cachedData);
             apiLoadingElement.style.display = 'none';
             return;
         }
@@ -187,19 +189,48 @@ async function fetchVideoMetadata(videoId) {
         
         cacheVideoData(videoId, videoData);
         updateVideoInfoUI(videoData);
+        // Update history with the fetched title
+        updateHistoryWithVideoData(videoId, videoData);
         await fetchVideoDuration(videoId);
         
     } catch (error) {
         console.error("Error fetching video metadata:", error);
-        updateVideoInfoUI({
+        const fallbackData = {
             title: "Video loaded",
             author: "YouTube",
             thumbnail: "",
             duration: "N/A",
             views: "N/A"
-        });
+        };
+        updateVideoInfoUI(fallbackData);
+        // Still try to update history with fallback title
+        updateHistoryWithVideoData(videoId, fallbackData);
     } finally {
         apiLoadingElement.style.display = 'none';
+    }
+}
+
+// NEW FUNCTION: Update history with correct video data
+function updateHistoryWithVideoData(videoId, videoData) {
+    try {
+        const history = JSON.parse(localStorage.getItem('videoHistory') || '[]');
+        const itemIndex = history.findIndex(item => item.id === videoId);
+        
+        if (itemIndex > -1) {
+            // Update the history item with actual data
+            history[itemIndex].title = videoData.title || "Unknown Video";
+            history[itemIndex].author = videoData.author || "YouTube";
+            history[itemIndex].thumbnail = videoData.thumbnail_small || `https://img.youtube.com/vi/${videoId}/default.jpg`;
+            
+            localStorage.setItem('videoHistory', JSON.stringify(history));
+            
+            // Update menu if it's open
+            if (isMenuOpen) {
+                updateMenuHistory();
+            }
+        }
+    } catch (error) {
+        console.error("Error updating history with video data:", error);
     }
 }
 
@@ -214,10 +245,32 @@ async function fetchVideoDuration(videoId) {
             if (data.duration) {
                 updateCachedVideoDuration(videoId, data.duration);
                 videoDuration.textContent = formatDuration(data.duration);
+                
+                // Also update history duration
+                updateHistoryDuration(videoId, data.duration);
             }
         }
     } catch (error) {
         console.log("Could not fetch duration:", error);
+    }
+}
+
+// NEW FUNCTION: Update history duration
+function updateHistoryDuration(videoId, duration) {
+    try {
+        const history = JSON.parse(localStorage.getItem('videoHistory') || '[]');
+        const itemIndex = history.findIndex(item => item.id === videoId);
+        
+        if (itemIndex > -1) {
+            history[itemIndex].duration = duration;
+            localStorage.setItem('videoHistory', JSON.stringify(history));
+            
+            if (isMenuOpen) {
+                updateMenuHistory();
+            }
+        }
+    } catch (error) {
+        console.error("Error updating history duration:", error);
     }
 }
 
@@ -291,7 +344,7 @@ function updateCachedVideoDuration(videoId, duration) {
     }
 }
 
-// --- Menu History Management ---
+// --- Menu History Management (UPDATED) ---
 function updateMenuHistory() {
     const history = JSON.parse(localStorage.getItem('videoHistory') || '[]');
     menuHistory.innerHTML = '';
@@ -309,18 +362,23 @@ function updateMenuHistory() {
     history.slice(0, 10).forEach((item) => {
         const historyItem = document.createElement('div');
         historyItem.className = 'history-item-menu';
+        
+        // Use the actual title from history, not "Loading..."
+        const displayTitle = item.title === "Loading..." ? "Unknown Video" : item.title;
+        
         historyItem.innerHTML = `
             <div class="history-thumb">
                 ${item.thumbnail ? 
-                    `<img src="${item.thumbnail}" alt="${item.title}" loading="lazy">` :
+                    `<img src="${item.thumbnail}" alt="${displayTitle}" loading="lazy">` :
                     `<div style="background: linear-gradient(45deg, #00e0ff, #00c4ff); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
                         <i class="fas fa-play" style="color: #000;"></i>
                     </div>`
                 }
             </div>
             <div class="history-details">
-                <div class="history-title">${item.title || 'Unknown Video'}</div>
+                <div class="history-title">${displayTitle}</div>
                 <div class="history-time">${formatTimeAgo(item.timestamp)}</div>
+                ${item.duration ? `<div class="history-duration">${formatDuration(item.duration)}</div>` : ''}
             </div>
         `;
         
@@ -431,52 +489,39 @@ async function loadVideo() {
     }
 }
 
-// --- History Management ---
+// --- History Management (UPDATED) ---
 async function saveToHistory(videoId, url) {
     try {
         const history = JSON.parse(localStorage.getItem('videoHistory') || '[]');
         const existingIndex = history.findIndex(item => item.id === videoId);
         
         if (existingIndex > -1) {
+            // Move existing item to top
             const existingItem = history.splice(existingIndex, 1)[0];
             existingItem.timestamp = new Date().toISOString();
+            // Don't overwrite the title if we already have it
             history.unshift(existingItem);
         } else {
+            // Add new item with placeholder title
             history.unshift({
                 id: videoId,
                 url: url,
-                title: "Loading...",
+                title: "Loading...", // Placeholder that will be updated
                 thumbnail: `https://img.youtube.com/vi/${videoId}/default.jpg`,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                duration: null
             });
         }
         
         if (history.length > 20) history.length = 20;
         localStorage.setItem('videoHistory', JSON.stringify(history));
         
-        if (currentVideoData) {
-            setTimeout(() => updateHistoryItemTitle(videoId, currentVideoData.title), 1000);
-        }
-        
     } catch (error) {
         console.error("Failed to save history:", error);
     }
 }
 
-function updateHistoryItemTitle(videoId, title) {
-    try {
-        const history = JSON.parse(localStorage.getItem('videoHistory') || '[]');
-        const itemIndex = history.findIndex(item => item.id === videoId);
-        
-        if (itemIndex > -1) {
-            history[itemIndex].title = title;
-            localStorage.setItem('videoHistory', JSON.stringify(history));
-            if (isMenuOpen) updateMenuHistory();
-        }
-    } catch (error) {
-        console.error("Failed to update history title:", error);
-    }
-}
+// REMOVED: Old updateHistoryItemTitle function (replaced by updateHistoryWithVideoData)
 
 function clearHistory() {
     if (confirm("Are you sure you want to clear all video history?")) {
@@ -792,7 +837,7 @@ const modalContents = {
             <ul>
                 <li><strong>Privacy First:</strong> Uses YouTube's nocookie domain</li>
                 <li><strong>Clean Interface:</strong> Minimal design, no distractions</li>
-                <li><strong>Video History:</strong> Track your recent videos</li>
+                <li><strong>Video History:</strong> Track your recent videos with proper titles</li>
                 <li><strong>Smart Menu:</strong> Quick access to all features</li>
                 <li><strong>Keyboard Shortcuts:</strong> Faster navigation</li>
                 <li><strong>Themes:</strong> Dark/Light mode support</li>
@@ -819,7 +864,7 @@ const modalContents = {
         
         <div class="modal-signature">
             <p>Crafted with <i class="fas fa-heart"></i> by Shubham</p>
-            <p class="version">v2.1 • Enhanced with Auto-Load & Share</p>
+            <p class="version">v2.2 • Fixed History Titles & Enhanced Features</p>
         </div>
     `,
     
@@ -842,7 +887,7 @@ const modalContents = {
         <div class="modal-section">
             <h4><i class="fas fa-database"></i> What We Store Locally</h4>
             <ul>
-                <li><strong>Video History:</strong> Last 20 videos (browser storage only)</li>
+                <li><strong>Video History:</strong> Last 20 videos with titles and thumbnails</li>
                 <li><strong>Theme Preference:</strong> Your dark/light mode choice</li>
                 <li><strong>Video Cache:</strong> Temporary video metadata (24 hours)</li>
             </ul>
@@ -1090,9 +1135,10 @@ function init() {
         }
     }, 500);
     
-    console.log("INFINITY Player v2.1 initialized");
+    console.log("INFINITY Player v2.2 initialized");
     console.log("Features: YouTube API, Video Metadata, Enhanced Menu, Real-time Info");
-    console.log("New Features: Auto-load from URL, Share functionality");
+    console.log("Fixed: History titles now show actual video titles instead of 'Loading...'");
+    console.log("New Features: Auto-load from URL, Share functionality, Duration in history");
     console.log("Theme: " + (isDarkMode ? "Dark" : "Light"));
     console.log("History Items: " + (JSON.parse(localStorage.getItem('videoHistory') || '[]').length));
     console.log("Menu: Closed by default");
