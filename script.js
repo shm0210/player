@@ -1076,3 +1076,18 @@ function init() {
 }
 
 init();
+
+const modalContents = {
+    privacy: `
+        <div class="modal-section">
+            <h4><i class="fas fa-ad"></i> Advertising</h4>
+            <p>This player displays ads through Google AdSense to support development. Ads are:</p>
+            <ul>
+                <li><strong>Non-intrusive:</strong> Placed only in designated areas</li>
+                <li><strong>Privacy-compliant:</strong> Served by Google AdSense</li>
+                <li><strong>Optional:</strong> You can use ad blockers, but ads support the developer</li>
+            </ul>
+        </div>
+        ... rest of your privacy content ...
+    `
+};
