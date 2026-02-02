@@ -1,3 +1,9 @@
+// ============================
+// INFINITY YouTube Player JS
+// Enhanced Version with Ad Integration
+// ============================
+
+// --- Element References ---
 const videoLinkInput = document.getElementById('video-link');
 const playButton = document.getElementById('play-button');
 const youtubeIframe = document.getElementById('youtube-iframe');
@@ -15,6 +21,7 @@ const videoViews = document.getElementById('video-views');
 const videoThumbnail = document.getElementById('video-thumbnail');
 const shareButton = document.getElementById('share-button') || document.createElement('button');
 
+// Menu Elements
 const menuToggle = document.getElementById('menu-toggle');
 const closeMenuButton = document.getElementById('close-menu');
 const sidebar = document.getElementById('sidebar');
@@ -27,22 +34,47 @@ const aboutMenuButton = document.getElementById('about-menu');
 const privacyMenuButton = document.getElementById('privacy-menu');
 const termsMenuButton = document.getElementById('terms-menu');
 const contactMenuButton = document.getElementById('contact-menu');
+const advertisingMenuButton = document.getElementById('advertising-menu');
+const adPreferencesButton = document.getElementById('ad-preferences');
 const menuHistory = document.getElementById('menu-history');
 
+// Modal Elements
 const infoModal = document.getElementById('info-modal');
 const shortcutsModal = document.getElementById('shortcuts-modal');
+const adPreferencesModal = document.getElementById('ad-preferences-modal');
+const advertisingInfoModal = document.getElementById('advertising-info-modal');
 const modalTitle = document.getElementById('modal-title');
 const modalContent = document.getElementById('modal-content');
 const closeModalButtons = document.querySelectorAll('.close-modal');
 
+// Footer Elements
+const footerLinks = {
+    privacy: document.getElementById('footer-privacy'),
+    terms: document.getElementById('footer-terms'),
+    cookies: document.getElementById('footer-cookies'),
+    advertising: document.getElementById('footer-advertising'),
+    help: document.getElementById('footer-help'),
+    contact: document.getElementById('footer-contact'),
+    bug: document.getElementById('footer-bug'),
+    feature: document.getElementById('footer-feature'),
+    about: document.getElementById('footer-about'),
+    features: document.getElementById('footer-features'),
+    changelog: document.getElementById('footer-changelog'),
+    roadmap: document.getElementById('footer-roadmap')
+};
+
+// --- State Variables ---
 let isDarkMode = localStorage.getItem('darkMode') === 'true';
 let currentVideoId = null;
 let currentVideoData = null;
 let wakeLock = null;
 let isMenuOpen = false;
+let adManager = null;
 
+// --- YouTube API Integration ---
 let ytAPILoaded = false;
 
+// Check if YouTube API is already loaded
 if (window.YT && window.YT.loaded) {
     ytAPILoaded = true;
     console.log("✅ YouTube API already loaded");
@@ -53,6 +85,49 @@ if (window.YT && window.YT.loaded) {
     };
 }
 
+// --- Ad Events Integration ---
+function initAdEvents() {
+    // Create custom events for ad manager
+    const videoLoadedEvent = new CustomEvent('videoLoaded');
+    const themeChangedEvent = new CustomEvent('themeChanged');
+    const showSupportModalEvent = new CustomEvent('showSupportModal');
+    
+    // Listen for ad manager initialization
+    document.addEventListener('adManagerReady', (e) => {
+        adManager = e.detail.manager;
+        console.log('Ad Manager connected:', adManager);
+    });
+    
+    // Dispatch video loaded event
+    window.dispatchVideoLoadedEvent = function() {
+        document.dispatchEvent(videoLoadedEvent);
+    };
+    
+    // Dispatch theme changed event
+    window.dispatchThemeChangedEvent = function() {
+        document.dispatchEvent(themeChangedEvent);
+    };
+    
+    // Dispatch show support modal event
+    window.dispatchShowSupportModalEvent = function() {
+        document.dispatchEvent(showSupportModalEvent);
+    };
+    
+    // Add menu state change event
+    window.dispatchMenuStateChange = function() {
+        document.dispatchEvent(new CustomEvent('menuStateChange', {
+            detail: { isOpen: isMenuOpen }
+        }));
+    };
+    
+    // Listen for support modal request from ad manager
+    document.addEventListener('showSupportModal', () => {
+        closeMenu();
+        showSupportOptions();
+    });
+}
+
+// --- Theme Management ---
 function initTheme() {
     document.body.classList.toggle('dark-mode', isDarkMode);
     themeStatus.textContent = isDarkMode ? "Dark" : "Light";
@@ -65,25 +140,31 @@ function toggleTheme() {
     isDarkMode = !isDarkMode;
     localStorage.setItem('darkMode', isDarkMode);
     initTheme();
+    dispatchThemeChangedEvent();
     showSuccess(isDarkMode ? "Dark theme enabled" : "Light theme enabled");
 }
 
+// --- Menu System ---
 function toggleMenu() {
     if (isMenuOpen) {
         closeMenu();
     } else {
         openMenu();
     }
+    dispatchMenuStateChange();
 }
 
 function openMenu() {
     isMenuOpen = true;
     
+    // First set display to block for overlay
     menuOverlay.style.display = 'block';
     sidebar.style.display = 'flex';
     
+    // Force reflow to ensure CSS transition works
     void sidebar.offsetWidth;
     
+    // Add show classes to trigger animations
     setTimeout(() => {
         sidebar.classList.add('show');
         menuOverlay.classList.add('show');
@@ -103,10 +184,12 @@ function closeMenu() {
     
     isMenuOpen = false;
     
+    // Remove show classes to trigger closing animations
     sidebar.classList.remove('show');
     menuOverlay.classList.remove('show');
     menuToggle.classList.remove('open');
-
+    
+    // Wait for animation to complete before hiding
     setTimeout(() => {
         sidebar.style.display = 'none';
         menuOverlay.style.display = 'none';
@@ -114,6 +197,8 @@ function closeMenu() {
         menuToggle.setAttribute('aria-label', 'Open Menu');
         document.body.style.overflow = '';
     }, 300);
+    
+    dispatchMenuStateChange();
 }
 
 function checkNewVideosInHistory() {
@@ -146,6 +231,7 @@ async function fetchVideoMetadata(videoId) {
         const cachedData = getCachedVideoData(videoId);
         if (cachedData) {
             updateVideoInfoUI(cachedData);
+            // Update history with correct title if needed
             updateHistoryWithVideoData(videoId, cachedData);
             apiLoadingElement.style.display = 'none';
             return;
@@ -170,6 +256,7 @@ async function fetchVideoMetadata(videoId) {
         
         cacheVideoData(videoId, videoData);
         updateVideoInfoUI(videoData);
+        // Update history with the fetched title
         updateHistoryWithVideoData(videoId, videoData);
         await fetchVideoDuration(videoId);
         
@@ -183,6 +270,7 @@ async function fetchVideoMetadata(videoId) {
             views: "N/A"
         };
         updateVideoInfoUI(fallbackData);
+        // Still try to update history with fallback title
         updateHistoryWithVideoData(videoId, fallbackData);
     } finally {
         apiLoadingElement.style.display = 'none';
@@ -195,12 +283,14 @@ function updateHistoryWithVideoData(videoId, videoData) {
         const itemIndex = history.findIndex(item => item.id === videoId);
         
         if (itemIndex > -1) {
+            // Update the history item with actual data
             history[itemIndex].title = videoData.title || "Unknown Video";
             history[itemIndex].author = videoData.author || "YouTube";
             history[itemIndex].thumbnail = videoData.thumbnail_small || `https://img.youtube.com/vi/${videoId}/default.jpg`;
             
             localStorage.setItem('videoHistory', JSON.stringify(history));
             
+            // Update menu if it's open
             if (isMenuOpen) {
                 updateMenuHistory();
             }
@@ -222,6 +312,7 @@ async function fetchVideoDuration(videoId) {
                 updateCachedVideoDuration(videoId, data.duration);
                 videoDuration.textContent = formatDuration(data.duration);
                 
+                // Also update history duration
                 updateHistoryDuration(videoId, data.duration);
             }
         }
@@ -278,6 +369,7 @@ function formatViews(views) {
     return views.toLocaleString() + ' views';
 }
 
+// --- Cache Management ---
 function cacheVideoData(videoId, data) {
     try {
         const cache = JSON.parse(localStorage.getItem('videoCache') || '{}');
@@ -317,6 +409,7 @@ function updateCachedVideoDuration(videoId, duration) {
     }
 }
 
+// --- Menu History Management ---
 function updateMenuHistory() {
     const history = JSON.parse(localStorage.getItem('videoHistory') || '[]');
     menuHistory.innerHTML = '';
@@ -335,6 +428,7 @@ function updateMenuHistory() {
         const historyItem = document.createElement('div');
         historyItem.className = 'history-item-menu';
         
+        // Use the actual title from history, not "Loading..."
         const displayTitle = item.title === "Loading..." ? "Unknown Video" : item.title;
         
         historyItem.innerHTML = `
@@ -378,6 +472,7 @@ function formatTimeAgo(timestamp) {
     return past.toLocaleDateString();
 }
 
+// --- Status Handlers ---
 function showError(message) {
     errorMessageElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
     errorMessageElement.style.display = 'block';
@@ -390,6 +485,7 @@ function showSuccess(message) {
     setTimeout(() => (successMessageElement.style.display = 'none'), 3000);
 }
 
+// --- Video Handling ---
 function getYouTubeVideoId(url) {
     const patterns = [
         /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|live\/|shorts\/))([^&\n?#]+)/,
@@ -444,6 +540,7 @@ async function loadVideo() {
         youtubeIframe.src = embedUrl;
         
         showSuccess("Video loaded successfully");
+        dispatchVideoLoadedEvent();
         requestWakeLock();
         updatePageURL(link);
         
@@ -458,20 +555,24 @@ async function loadVideo() {
     }
 }
 
+// --- History Management ---
 async function saveToHistory(videoId, url) {
     try {
         const history = JSON.parse(localStorage.getItem('videoHistory') || '[]');
         const existingIndex = history.findIndex(item => item.id === videoId);
         
         if (existingIndex > -1) {
+            // Move existing item to top
             const existingItem = history.splice(existingIndex, 1)[0];
             existingItem.timestamp = new Date().toISOString();
+            // Don't overwrite the title if we already have it
             history.unshift(existingItem);
         } else {
+            // Add new item with placeholder title
             history.unshift({
                 id: videoId,
                 url: url,
-                title: "Loading...",
+                title: "Loading...", // Placeholder that will be updated
                 thumbnail: `https://img.youtube.com/vi/${videoId}/default.jpg`,
                 timestamp: new Date().toISOString(),
                 duration: null
@@ -486,7 +587,6 @@ async function saveToHistory(videoId, url) {
     }
 }
 
-
 function clearHistory() {
     if (confirm("Are you sure you want to clear all video history?")) {
         localStorage.removeItem('videoHistory');
@@ -495,6 +595,7 @@ function clearHistory() {
     }
 }
 
+// --- Copy Link Function ---
 async function copyVideoLink() {
     if (!currentVideoId) {
         showError("No video loaded");
@@ -509,6 +610,7 @@ async function copyVideoLink() {
         await navigator.clipboard.writeText(textToCopy);
         showSuccess("Video links copied to clipboard");
     } catch (error) {
+        // Fallback for older browsers
         const textArea = document.createElement('textarea');
         const playerUrl = `${window.location.origin}${window.location.pathname}?v=${currentVideoId}`;
         textArea.value = playerUrl;
@@ -520,6 +622,7 @@ async function copyVideoLink() {
     }
 }
 
+// --- Share Video Function ---
 async function shareVideo() {
     if (!currentVideoId) {
         showError("No video loaded to share");
@@ -554,6 +657,7 @@ async function shareVideo() {
     }
 }
 
+// --- Helper for Clipboard ---
 async function copyToClipboard(text) {
     try {
         await navigator.clipboard.writeText(text);
@@ -587,14 +691,17 @@ async function copyToClipboard(text) {
     }
 }
 
+// --- Auto-load from URL ---
 function autoLoadFromURL() {
     const params = new URLSearchParams(window.location.search);
     let videoId = params.get('v') || params.get('video') || params.get('id') || params.get('vid');
     
     if (videoId) {
+        // Check if it's already a video ID or a full URL
         const isFullUrl = videoId.includes('youtube.com') || videoId.includes('youtu.be');
         
         if (isFullUrl) {
+            // Extract video ID from full URL
             videoId = getYouTubeVideoId(videoId);
         }
         
@@ -615,15 +722,18 @@ function autoLoadFromURL() {
     return false;
 }
 
+// --- Update Page URL for Sharing ---
 function updatePageURL(url) {
     try {
         const videoId = getYouTubeVideoId(url);
         if (videoId) {
             const newUrl = new URL(window.location.href);
             
+            // Remove all video-related parameters
             const paramsToRemove = ['v', 'video', 'url', 'link', 'id', 'vid'];
             paramsToRemove.forEach(param => newUrl.searchParams.delete(param));
             
+            // Set only the video ID as parameter
             newUrl.searchParams.set('v', videoId);
             
             window.history.replaceState({}, document.title, newUrl.toString());
@@ -637,6 +747,7 @@ function updatePageURL(url) {
     }
 }
 
+// --- Wake Lock ---
 async function requestWakeLock() {
     if ('wakeLock' in navigator && !wakeLock) {
         try {
@@ -661,6 +772,7 @@ function releaseWakeLock() {
     }
 }
 
+// --- Keyboard Shortcuts ---
 function handleKeyboardShortcuts(event) {
     if (event.target.tagName === 'INPUT' || event.target.isContentEditable) return;
     
@@ -689,6 +801,13 @@ function handleKeyboardShortcuts(event) {
             event.preventDefault();
             if (shareButton) shareVideo();
             break;
+        case 'a':
+            event.preventDefault();
+            if (adManager) {
+                adManager.toggleAds();
+                showSuccess(adManager.adPreferences.enabled ? "Ads enabled" : "Ads disabled");
+            }
+            break;
         case 'enter':
             if (document.activeElement !== videoLinkInput) {
                 event.preventDefault();
@@ -710,7 +829,10 @@ function handleKeyboardShortcuts(event) {
             event.preventDefault();
             if (isMenuOpen) {
                 closeMenu();
-            } else if (infoModal.classList.contains('show') || shortcutsModal.classList.contains('show')) {
+            } else if (infoModal.classList.contains('show') || 
+                      shortcutsModal.classList.contains('show') ||
+                      adPreferencesModal.classList.contains('show') ||
+                      advertisingInfoModal.classList.contains('show')) {
                 closeModals();
             } else if (document.fullscreenElement) {
                 document.exitFullscreen();
@@ -719,6 +841,7 @@ function handleKeyboardShortcuts(event) {
     }
 }
 
+// --- Fullscreen ---
 function toggleFullscreen() {
     if (!currentVideoId) {
         showError("Load a video first");
@@ -739,6 +862,7 @@ function toggleFullscreen() {
     }
 }
 
+// --- Reset Player ---
 function resetPlayer() {
     youtubeIframe.src = '';
     videoLinkInput.value = '';
@@ -762,17 +886,28 @@ function resetPlayer() {
     showSuccess("Player reset");
 }
 
+// --- Modal System ---
 function showModal(title, content) {
     modalTitle.textContent = title;
     modalContent.innerHTML = content;
     infoModal.classList.add('show');
 }
 
+function showSupportOptions() {
+    const modal = document.getElementById('ad-preferences-modal');
+    if (modal) {
+        modal.classList.add('show');
+    }
+}
+
 function closeModals() {
     infoModal.classList.remove('show');
     shortcutsModal.classList.remove('show');
+    adPreferencesModal.classList.remove('show');
+    advertisingInfoModal.classList.remove('show');
 }
 
+// --- Modal Content ---
 const modalContents = {
     about: `
         <div class="modal-section">
@@ -793,6 +928,7 @@ const modalContents = {
                 <li><strong>Wake Lock:</strong> Screen stays on during playback</li>
                 <li><strong>Auto-load:</strong> Load videos directly from URL parameters</li>
                 <li><strong>Share:</strong> Generate shareable links</li>
+                <li><strong>Ad Support:</strong> Optional ads to support development</li>
             </ul>
         </div>
         
@@ -807,12 +943,13 @@ const modalContents = {
                 <span>LocalStorage</span>
                 <span>Wake Lock API</span>
                 <span>Web Share API</span>
+                <span>Google AdSense</span>
             </div>
         </div>
         
         <div class="modal-signature">
             <p>Crafted with <i class="fas fa-heart"></i> by Shubham</p>
-            <p class="version">v2.2 • Enhanced Version</p>
+            <p class="version">v3.0 • Enhanced with Ad Integration & Better UI</p>
         </div>
     `,
     
@@ -829,6 +966,7 @@ const modalContents = {
                 <li><strong>No Tracking:</strong> No cookies, analytics, or tracking scripts</li>
                 <li><strong>No History Sharing:</strong> Your watch history stays on your device</li>
                 <li><strong>No IP Logging:</strong> We don't store IP addresses or location data</li>
+                <li><strong>No Ad Targeting Data:</strong> We don't collect data for ad targeting</li>
             </ul>
         </div>
         
@@ -838,6 +976,7 @@ const modalContents = {
                 <li><strong>Video History:</strong> Last 20 videos with titles and thumbnails</li>
                 <li><strong>Theme Preference:</strong> Your dark/light mode choice</li>
                 <li><strong>Video Cache:</strong> Temporary video metadata (24 hours)</li>
+                <li><strong>Ad Preferences:</strong> Your ad settings (enabled/disabled)</li>
             </ul>
             <p class="note">All data is stored locally in your browser and never sent to any server.</p>
         </div>
@@ -850,6 +989,18 @@ const modalContents = {
                 <li>Respects YouTube's privacy settings</li>
                 <li>Follows Google's privacy guidelines</li>
             </ul>
+        </div>
+        
+        <div class="modal-section">
+            <h4><i class="fas fa-ad"></i> Advertising & Privacy</h4>
+            <p>We use Google AdSense for advertising:</p>
+            <ul>
+                <li>Ads are served by Google, not by us</li>
+                <li>Google may use cookies for ad personalization</li>
+                <li>You can control ad preferences in the menu</li>
+                <li>You can use ad blockers if desired</li>
+            </ul>
+            <p>We never share your data with advertisers.</p>
         </div>
     `,
     
@@ -876,6 +1027,17 @@ const modalContents = {
                 <li><strong>No Bypassing:</strong> Do not use to bypass age or region restrictions</li>
                 <li><strong>Legal Content Only:</strong> Only watch legally available content</li>
                 <li><strong>No Abuse:</strong> Do not overload or abuse the service</li>
+                <li><strong>Respect Ads:</strong> Do not use aggressive ad blocking that breaks the site</li>
+            </ul>
+        </div>
+        
+        <div class="modal-section">
+            <h4><i class="fas fa-ad"></i> Advertising Terms</h4>
+            <ul>
+                <li>Ads help support the free service</li>
+                <li>We strive to show non-intrusive ads</li>
+                <li>You can disable ads through the preferences</li>
+                <li>Report inappropriate ads using the provided button</li>
             </ul>
         </div>
         
@@ -888,6 +1050,7 @@ const modalContents = {
                 <li>YouTube policy changes</li>
                 <li>Video takedowns or copyright issues</li>
                 <li>Browser compatibility issues</li>
+                <li>Ad content or availability</li>
             </ul>
         </div>
     `,
@@ -932,8 +1095,20 @@ const modalContents = {
             <ul>
                 <li><strong>Bug Reports:</strong> DM on Instagram with details</li>
                 <li><strong>Feature Requests:</strong> We welcome suggestions</li>
+                <li><strong>Ad Issues:</strong> Report inappropriate ads through the menu</li>
                 <li><strong>Questions:</strong> Feel free to reach out</li>
                 <li><strong>Feedback:</strong> Helps improve the player</li>
+            </ul>
+        </div>
+        
+        <div class="modal-section">
+            <h4><i class="fas fa-ad"></i> Advertisers & Sponsors</h4>
+            <p>For advertising inquiries or sponsorships:</p>
+            <ul>
+                <li>Contact via Instagram DM</li>
+                <li>We accept non-intrusive advertising</li>
+                <li>Sponsorships help keep the service free</li>
+                <li>We prioritize user experience in all partnerships</li>
             </ul>
         </div>
         
@@ -943,26 +1118,289 @@ const modalContents = {
     `
 };
 
+// --- Footer Link Handlers ---
+function setupFooterLinks() {
+    Object.keys(footerLinks).forEach(key => {
+        const link = footerLinks[key];
+        if (link) {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                handleFooterLinkClick(key);
+            });
+        }
+    });
+}
+
+function handleFooterLinkClick(type) {
+    switch(type) {
+        case 'privacy':
+            showModal('Privacy Information', modalContents.privacy);
+            break;
+        case 'terms':
+            showModal('Terms of Use', modalContents.terms);
+            break;
+        case 'cookies':
+            showModal('Cookie Policy', `
+                <div class="modal-section">
+                    <h4><i class="fas fa-cookie"></i> Cookie Policy</h4>
+                    <p>INFINITY Player uses minimal cookies for essential functionality.</p>
+                </div>
+                <div class="modal-section">
+                    <h4>Essential Cookies</h4>
+                    <ul>
+                        <li><strong>Theme Preference:</strong> Remembers your dark/light mode choice</li>
+                        <li><strong>Ad Preferences:</strong> Stores your ad settings</li>
+                        <li><strong>Session Data:</strong> Temporary data for current session</li>
+                    </ul>
+                </div>
+                <div class="modal-section">
+                    <h4>Third-Party Cookies</h4>
+                    <ul>
+                        <li><strong>YouTube:</strong> May set cookies when you interact with videos</li>
+                        <li><strong>Google AdSense:</strong> May set cookies for ad personalization</li>
+                    </ul>
+                    <p>You can control third-party cookies through your browser settings.</p>
+                </div>
+            `);
+            break;
+        case 'advertising':
+            advertisingInfoModal.classList.add('show');
+            break;
+        case 'help':
+            showModal('Help & FAQ', `
+                <div class="modal-section">
+                    <h4><i class="fas fa-question-circle"></i> Frequently Asked Questions</h4>
+                </div>
+                <div class="modal-section">
+                    <h5>How do I play a video?</h5>
+                    <p>Paste any YouTube URL into the input field and click Play or press Enter.</p>
+                </div>
+                <div class="modal-section">
+                    <h5>Is this legal?</h5>
+                    <p>Yes! We use YouTube's official embed feature. All videos are served directly from YouTube.</p>
+                </div>
+                <div class="modal-section">
+                    <h5>How do I disable ads?</h5>
+                    <p>Go to Menu → Settings → Ad Preferences, or use the keyboard shortcut 'A'.</p>
+                </div>
+                <div class="modal-section">
+                    <h5>Can I download videos?</h5>
+                    <p>No, this player only streams videos. Downloading YouTube videos violates their terms of service.</p>
+                </div>
+                <div class="modal-section">
+                    <h5>Why are some videos not playing?</h5>
+                    <p>Some uploaders disable embedding for their videos. Try watching directly on YouTube.</p>
+                </div>
+            `);
+            break;
+        case 'contact':
+            showModal('Contact & Support', modalContents.contact);
+            break;
+        case 'bug':
+            showModal('Report a Bug', `
+                <div class="modal-section">
+                    <h4><i class="fas fa-bug"></i> Report a Bug</h4>
+                    <p>Please include the following information when reporting bugs:</p>
+                </div>
+                <div class="modal-section">
+                    <ul>
+                        <li>What you were trying to do</li>
+                        <li>What happened instead</li>
+                        <li>Browser and version</li>
+                        <li>Device type (mobile/desktop)</li>
+                        <li>Screenshot if possible</li>
+                    </ul>
+                </div>
+                <div class="modal-section">
+                    <p>Contact via <a href="https://www.instagram.com/i.shubham0210/" target="_blank">Instagram</a> or email.</p>
+                </div>
+            `);
+            break;
+        case 'feature':
+            showModal('Request Feature', `
+                <div class="modal-section">
+                    <h4><i class="fas fa-lightbulb"></i> Request a Feature</h4>
+                    <p>We welcome feature suggestions!</p>
+                </div>
+                <div class="modal-section">
+                    <p>Popular requested features:</p>
+                    <ul>
+                        <li>Playlist support</li>
+                        <li>Custom themes</li>
+                        <li>Download options (if legal)</li>
+                        <li>More keyboard shortcuts</li>
+                        <li>Video quality selector</li>
+                    </ul>
+                </div>
+                <div class="modal-section">
+                    <p>Contact via <a href="https://www.instagram.com/i.shubham0210/" target="_blank">Instagram</a> with your ideas!</p>
+                </div>
+            `);
+            break;
+        case 'about':
+            showModal('About INFINITY Player', modalContents.about);
+            break;
+        case 'features':
+            showModal('Features', `
+                <div class="modal-section">
+                    <h4><i class="fas fa-star"></i> All Features</h4>
+                </div>
+                <div class="modal-section">
+                    <h5>Core Features</h5>
+                    <ul>
+                        <li>YouTube video playback</li>
+                        <li>Privacy-focused (nocookie domain)</li>
+                        <li>Minimal, clean interface</li>
+                        <li>Dark/Light theme</li>
+                        <li>Video history</li>
+                    </ul>
+                </div>
+                <div class="modal-section">
+                    <h5>Advanced Features</h5>
+                    <ul>
+                        <li>Keyboard shortcuts</li>
+                        <li>Fullscreen mode</li>
+                        <li>Video info display</li>
+                        <li>Share functionality</li>
+                        <li>Wake lock support</li>
+                    </ul>
+                </div>
+                <div class="modal-section">
+                    <h5>New in v3.0</h5>
+                    <ul>
+                        <li>Ad integration with preferences</li>
+                        <li>Improved history management</li>
+                        <li>Better mobile experience</li>
+                        <li>Enhanced modal system</li>
+                        <li>Footer with quick links</li>
+                    </ul>
+                </div>
+            `);
+            break;
+        case 'changelog':
+            showModal('Changelog', `
+                <div class="modal-section">
+                    <h4><i class="fas fa-history"></i> Version History</h4>
+                </div>
+                <div class="modal-section">
+                    <h5>v3.0 (Current)</h5>
+                    <ul>
+                        <li>Added AdSense integration</li>
+                        <li>Ad preferences system</li>
+                        <li>Enhanced footer with links</li>
+                        <li>Improved error handling</li>
+                        <li>Better mobile responsiveness</li>
+                    </ul>
+                </div>
+                <div class="modal-section">
+                    <h5>v2.2</h5>
+                    <ul>
+                        <li>Fixed history titles</li>
+                        <li>Improved menu animations</li>
+                        <li>Added video duration in history</li>
+                        <li>Better keyboard shortcuts</li>
+                    </ul>
+                </div>
+                <div class="modal-section">
+                    <h5>v2.0</h5>
+                    <ul>
+                        <li>Complete redesign</li>
+                        <li>Sidebar menu system</li>
+                        <li>Theme support</li>
+                        <li>Video metadata display</li>
+                    </ul>
+                </div>
+            `);
+            break;
+        case 'roadmap':
+            showModal('Roadmap', `
+                <div class="modal-section">
+                    <h4><i class="fas fa-road"></i> Future Plans</h4>
+                    <p>Here's what we're planning for future updates:</p>
+                </div>
+                <div class="modal-section">
+                    <h5>Planned Features</h5>
+                    <ul>
+                        <li>Playlist support</li>
+                        <li>Custom themes/colors</li>
+                        <li>Video download (if legal)</li>
+                        <li>Subscriptions feed</li>
+                        <li>Channel browsing</li>
+                    </ul>
+                </div>
+                <div class="modal-section">
+                    <h5>Improvements</h5>
+                    <ul>
+                        <li>Better ad management</li>
+                        <li>More keyboard shortcuts</li>
+                        <li>Performance optimizations</li>
+                        <li>Accessibility improvements</li>
+                        <li>Offline support</li>
+                    </ul>
+                </div>
+                <div class="modal-section">
+                    <p>Have suggestions? Use the "Request Feature" link!</p>
+                </div>
+            `);
+            break;
+    }
+}
+
+// --- Ad Management Integration ---
+function setupAdIntegration() {
+    // Wait for ad manager to be available
+    const checkAdManager = setInterval(() => {
+        if (window.adManager) {
+            clearInterval(checkAdManager);
+            
+            // Dispatch ready event
+            document.dispatchEvent(new CustomEvent('adManagerReady', {
+                detail: { manager: window.adManager }
+            }));
+            
+            console.log('Ad Manager integration complete');
+        }
+    }, 100);
+}
+
+// --- Event Listeners ---
 function initializeEventListeners() {
+    // Initialize theme
     initTheme();
     
+    // Theme toggle
     themeMenuToggle.addEventListener('click', toggleTheme);
     
+    // Video loading
     playButton.addEventListener('click', loadVideo);
     videoLinkInput.addEventListener('keypress', e => {
         if (e.key === 'Enter') loadVideo();
     });
     
+    // Menu system
     menuToggle.addEventListener('click', toggleMenu);
     closeMenuButton.addEventListener('click', closeMenu);
     menuOverlay.addEventListener('click', closeMenu);
     
+    // Menu buttons
     clearHistoryButton.addEventListener('click', clearHistory);
     shortcutsHelpButton.addEventListener('click', () => {
         shortcutsModal.classList.add('show');
         closeMenu();
     });
     
+    // Ad-related buttons
+    adPreferencesButton.addEventListener('click', () => {
+        adPreferencesModal.classList.add('show');
+        closeMenu();
+    });
+    
+    advertisingMenuButton.addEventListener('click', () => {
+        advertisingInfoModal.classList.add('show');
+        closeMenu();
+    });
+    
+    // Info menu buttons
     aboutMenuButton.addEventListener('click', () => {
         showModal('About INFINITY Player', modalContents.about);
         closeMenu();
@@ -983,38 +1421,51 @@ function initializeEventListeners() {
         closeMenu();
     });
     
+    // Main controls
     fullscreenButton.addEventListener('click', toggleFullscreen);
     resetButton.addEventListener('click', resetPlayer);
     copyLinkButton.addEventListener('click', copyVideoLink);
     
+    // Share button (if exists)
     if (shareButton && shareButton.id === 'share-button') {
         shareButton.addEventListener('click', shareVideo);
     }
     
+    // Keyboard shortcuts
     document.addEventListener('keydown', handleKeyboardShortcuts);
     
+    // Modal controls
     closeModalButtons.forEach(btn => {
         btn.addEventListener('click', closeModals);
     });
     
-    [infoModal, shortcutsModal].forEach(modal => {
+    [infoModal, shortcutsModal, adPreferencesModal, advertisingInfoModal].forEach(modal => {
         modal.addEventListener('click', (e) => {
             if (e.target === modal) closeModals();
         });
     });
     
+    // Wake lock release
     window.addEventListener('beforeunload', releaseWakeLock);
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') releaseWakeLock();
     });
     
+    // Auto-focus input on page load
     window.addEventListener('load', () => {
         setTimeout(() => {
             if (!videoLinkInput.value) videoLinkInput.focus();
         }, 500);
     });
+    
+    // Setup footer links
+    setupFooterLinks();
+    
+    // Setup ad integration
+    setupAdIntegration();
 }
 
+// --- Particles Background ---
 function initParticles() {
     if (typeof particlesJS !== 'undefined') {
         particlesJS('particles-js', {
@@ -1051,14 +1502,18 @@ function initParticles() {
     }
 }
 
+// --- Initialization ---
 function init() {
     initializeEventListeners();
     initParticles();
     updateMenuHistory();
+    initAdEvents();
     
+    // Make sure menu starts closed
     sidebar.style.display = 'none';
     menuOverlay.style.display = 'none';
     
+    // Auto-load from URL
     setTimeout(() => {
         const loaded = autoLoadFromURL();
         if (!loaded) {
@@ -1066,28 +1521,38 @@ function init() {
         }
     }, 500);
     
-    console.log("INFINITY Player v2.2 initialized");
-    console.log("Features: YouTube API, Video Metadata, Enhanced Menu, Real-time Info");
-    console.log("Fixed: History titles now show actual video titles instead of 'Loading...'");
-    console.log("New Features: Auto-load from URL, Share functionality, Duration in history");
+    console.log("INFINITY Player v3.0 initialized");
+    console.log("Features: YouTube API, Video Metadata, Enhanced Menu, Ad Integration");
+    console.log("New: AdSense support, Footer links, Enhanced modals, Better keyboard shortcuts");
     console.log("Theme: " + (isDarkMode ? "Dark" : "Light"));
     console.log("History Items: " + (JSON.parse(localStorage.getItem('videoHistory') || '[]').length));
     console.log("Menu: Closed by default");
 }
 
-init();
+// Start the application
+window.addEventListener('DOMContentLoaded', init);
 
-const modalContents = {
-    privacy: `
-        <div class="modal-section">
-            <h4><i class="fas fa-ad"></i> Advertising</h4>
-            <p>This player displays ads through Google AdSense to support development. Ads are:</p>
-            <ul>
-                <li><strong>Non-intrusive:</strong> Placed only in designated areas</li>
-                <li><strong>Privacy-compliant:</strong> Served by Google AdSense</li>
-                <li><strong>Optional:</strong> You can use ad blockers, but ads support the developer</li>
-            </ul>
-        </div>
-        ... rest of your privacy content ...
-    `
+// Make functions available globally for ad manager
+window.dispatchVideoLoadedEvent = () => {
+    document.dispatchEvent(new CustomEvent('videoLoaded'));
 };
+
+window.dispatchThemeChangedEvent = () => {
+    document.dispatchEvent(new CustomEvent('themeChanged'));
+};
+
+window.dispatchShowSupportModalEvent = () => {
+    document.dispatchEvent(new CustomEvent('showSupportModal'));
+};
+
+// Export for debugging
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        loadVideo,
+        toggleTheme,
+        toggleMenu,
+        resetPlayer,
+        copyVideoLink,
+        shareVideo
+    };
+}
