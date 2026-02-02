@@ -13,7 +13,6 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://shminfinity.fun/">
     
-    <!-- FIXED: Updated Content Security Policy for Font Awesome -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self'; 
         script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.youtube.com; 
@@ -24,7 +23,6 @@
         connect-src 'self' https://www.youtube.com https://noembed.com https://img.youtube.com;
     ">
     
-    <!-- YouTube API -->
     <script src="https://www.youtube.com/iframe_api"></script>
     
     <link rel="icon" href="https://www.youtube.com/s/desktop/5b55d6d2/img/favicon_32x32.png" type="image/png">
@@ -32,7 +30,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- FIXED: Use specific Font Awesome version with correct integrity hash -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
           integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
           crossorigin="anonymous" referrerpolicy="no-referrer">
@@ -45,17 +42,14 @@
         <div id="particles-js"></div>
     </div>
 
-    <!-- Legal Disclaimer -->
     <div class="legal-disclaimer">
         <p><i class="fas fa-exclamation-triangle"></i> <strong>Disclaimer:</strong> This player uses YouTube's official embed feature. All videos are served directly from YouTube.</p>
     </div>
 
-    <!-- Hamburger Menu Button -->
     <button class="menu-toggle" id="menu-toggle" aria-label="Open Menu">
         <i class="fas fa-bars"></i>
     </button>
 
-    <!-- Sidebar Menu -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h3><i class="fas fa-infinity"></i> INFINITY Player</h3>
@@ -81,7 +75,6 @@
         <div class="menu-section">
             <h4><i class="fas fa-history"></i> Recent Videos</h4>
             <div id="menu-history" class="menu-history">
-                <!-- Recent videos will be loaded here -->
                 <div class="empty-state">
                     <i class="fas fa-history"></i>
                     <p>No recent videos yet</p>
@@ -139,11 +132,9 @@
         </div>
     </div>
 
-    <!-- Overlay for menu -->
     <div class="menu-overlay" id="menu-overlay"></div>
 
     <div class="video-container">
-        <!-- YouTube Player -->
         <div id="youtube-player">
             <iframe id="youtube-iframe" src=""
                 allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
@@ -151,13 +142,11 @@
             </iframe>
         </div>
 
-        <!-- YouTube API Loading -->
         <div id="api-loading" class="message info-message">
             <i class="fas fa-sync-alt fa-spin"></i>
             <span>Loading video information...</span>
         </div>
 
-        <!-- Video Info Display -->
         <div id="video-info" class="video-info">
             <div class="video-info-header">
                 <div class="video-thumbnail" id="video-thumbnail">
@@ -179,7 +168,6 @@
             </div>
         </div>
 
-        <!-- Input Section -->
         <div class="input-group">
             <input type="text" id="video-link" placeholder="Paste YouTube Video Link" aria-label="YouTube Link">
             <button id="play-button" aria-label="Play Video">
@@ -188,17 +176,14 @@
             </button>
         </div>
 
-        <!-- Loading State -->
         <div id="loading">
             <div class="loading-spinner"></div>
             <span>Loading video...</span>
         </div>
 
-        <!-- Messages -->
         <div id="error-message" class="message error-message"></div>
         <div id="success-message" class="message success-message"></div>
 
-        <!-- Main Controls -->
         <div class="controls">
             <button class="fullscreen-btn" id="fullscreen-button" aria-label="Toggle Fullscreen">
                 <i class="fas fa-expand"></i>
@@ -219,7 +204,6 @@
         </div>
     </div>
 
-    <!-- Info Modal -->
     <div id="info-modal" class="modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
@@ -230,7 +214,6 @@
         </div>
     </div>
 
-    <!-- Keyboard Shortcuts Modal -->
     <div id="shortcuts-modal" class="modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
@@ -276,7 +259,6 @@
         </div>
     </div>
 
-    <!-- FIXED: Updated script sources -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script src="script.js"></script>
 </body>
