@@ -13,32 +13,26 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://shminfinity.fun/">
     
-    <!-- Google AdSense -->
-    <meta name="google-adsense-account" content="ca-pub-YOUR_PUBLISHER_ID">
-    
-    <!-- Updated Content Security Policy for AdSense -->
+    <!-- FIXED: Updated Content Security Policy for Font Awesome -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self'; 
-        script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.youtube.com https://pagead2.googlesyndication.com 'unsafe-inline'; 
-        style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com 'unsafe-inline'; 
-        img-src 'self' https: data: blob: https://googleads.g.doubleclick.net; 
-        frame-src https://www.youtube-nocookie.com https://www.youtube.com https://googleads.g.doubleclick.net; 
+        script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.youtube.com; 
+        style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com; 
+        img-src 'self' https: data: blob:; 
+        frame-src https://www.youtube-nocookie.com https://www.youtube.com; 
         font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:;
-        connect-src 'self' https://www.youtube.com https://noembed.com https://img.youtube.com https://googleads.g.doubleclick.net;
+        connect-src 'self' https://www.youtube.com https://noembed.com https://img.youtube.com;
     ">
     
     <!-- YouTube API -->
     <script src="https://www.youtube.com/iframe_api"></script>
-    
-    <!-- Google AdSense Script -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_PUBLISHER_ID" crossorigin="anonymous"></script>
     
     <link rel="icon" href="https://www.youtube.com/s/desktop/5b55d6d2/img/favicon_32x32.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome -->
+    <!-- FIXED: Use specific Font Awesome version with correct integrity hash -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
           integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
           crossorigin="anonymous" referrerpolicy="no-referrer">
@@ -84,18 +78,6 @@
             </div>
         </div>
 
-        <!-- Ad in Sidebar -->
-        <div class="menu-section ad-section">
-            <div class="ad-container ad-sidebar">
-                <ins class="adsbygoogle"
-                     style="display:block"
-                     data-ad-client="ca-pub-YOUR_PUBLISHER_ID"
-                     data-ad-slot="1234567891"
-                     data-ad-format="vertical"
-                     data-full-width-responsive="true"></ins>
-            </div>
-        </div>
-
         <div class="menu-section">
             <h4><i class="fas fa-history"></i> Recent Videos</h4>
             <div id="menu-history" class="menu-history">
@@ -121,10 +103,6 @@
                 <button class="menu-option" id="shortcuts-help">
                     <i class="fas fa-keyboard"></i>
                     <span>Keyboard Shortcuts</span>
-                </button>
-                <button class="menu-option" id="ad-settings">
-                    <i class="fas fa-ad"></i>
-                    <span>Ad Preferences</span>
                 </button>
             </div>
         </div>
@@ -158,9 +136,6 @@
                     <i class="fab fa-instagram"></i>
                 </a>
             </div>
-            <p class="ad-support-note">
-                <small>Ads help keep this service free</small>
-            </p>
         </div>
     </div>
 
@@ -168,16 +143,6 @@
     <div class="menu-overlay" id="menu-overlay"></div>
 
     <div class="video-container">
-        <!-- Top Ad Banner -->
-        <div class="ad-container ad-top">
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-YOUR_PUBLISHER_ID"
-                 data-ad-slot="1234567890"
-                 data-ad-format="auto"
-                 data-full-width-responsive="true"></ins>
-        </div>
-
         <!-- YouTube Player -->
         <div id="youtube-player">
             <iframe id="youtube-iframe" src=""
@@ -214,16 +179,6 @@
             </div>
         </div>
 
-        <!-- Middle Ad Banner -->
-        <div class="ad-container ad-middle">
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-YOUR_PUBLISHER_ID"
-                 data-ad-slot="0987654321"
-                 data-ad-format="rectangle"
-                 data-full-width-responsive="true"></ins>
-        </div>
-
         <!-- Input Section -->
         <div class="input-group">
             <input type="text" id="video-link" placeholder="Paste YouTube Video Link" aria-label="YouTube Link">
@@ -258,24 +213,9 @@
                 <span>PiP</span>
             </button>
             <button class="share-btn" id="share-button" aria-label="Share Video">
-                <i class="fas fa-share-alt"></i>
-                <span>Share</span>
-            </button>
-        </div>
-
-        <!-- Bottom Ad Banner -->
-        <div class="ad-container ad-bottom">
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-YOUR_PUBLISHER_ID"
-                 data-ad-slot="5566778899"
-                 data-ad-format="horizontal"
-                 data-full-width-responsive="true"></ins>
-        </div>
-
-        <!-- Ad Support Note -->
-        <div class="ad-support-message">
-            <p><i class="fas fa-info-circle"></i> Ads support the development and maintenance of this free service. Thank you for your understanding!</p>
+    <i class="fas fa-share-alt"></i>
+    <span>Share</span>
+</button>
         </div>
     </div>
 
@@ -321,10 +261,6 @@
                     <span>Copy Link</span>
                 </div>
                 <div class="shortcut-item">
-                    <kbd>S</kbd>
-                    <span>Share Video</span>
-                </div>
-                <div class="shortcut-item">
                     <kbd>H</kbd>
                     <span>History (in menu)</span>
                 </div>
@@ -340,53 +276,8 @@
         </div>
     </div>
 
-    <!-- Ad Preferences Modal -->
-    <div id="ad-prefs-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h3><i class="fas fa-ad"></i> Ad Preferences</h3>
-            <div class="modal-section">
-                <p>We use Google AdSense to display ads on this site. Here's what you should know:</p>
-            </div>
-            <div class="modal-section">
-                <h4><i class="fas fa-info-circle"></i> About Our Ads</h4>
-                <ul>
-                    <li>Ads help keep this service free and ad-free for everyone</li>
-                    <li>We show 3-4 non-intrusive ad units per page</li>
-                    <li>Ads are automatically refreshed every 60 seconds</li>
-                    <li>You may see personalized ads based on your browsing</li>
-                </ul>
-            </div>
-            <div class="modal-section">
-                <h4><i class="fas fa-shield-alt"></i> Privacy & Ads</h4>
-                <ul>
-                    <li>Google AdSense follows Google's Privacy Policy</li>
-                    <li>Ads are served through Google's secure network</li>
-                    <li>You can control personalized ads at <a href="https://adssettings.google.com" target="_blank">adssettings.google.com</a></li>
-                </ul>
-            </div>
-            <div class="modal-section">
-                <h4><i class="fas fa-heart"></i> Support This Project</h4>
-                <p>By allowing ads, you directly support:</p>
-                <ul>
-                    <li>Free access for all users</li>
-                    <li>Server maintenance costs</li>
-                    <li>Future feature development</li>
-                    <li>Bug fixes and improvements</li>
-                </ul>
-            </div>
-            <div class="modal-section">
-                <p class="note">
-                    <i class="fas fa-lightbulb"></i> 
-                    <strong>Tip:</strong> If ads are too intrusive, you can adjust your ad blocker settings to allow non-intrusive ads only.
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Scripts -->
+    <!-- FIXED: Updated script sources -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script src="script.js"></script>
-    <script src="ads.js"></script>
 </body>
 </html>
