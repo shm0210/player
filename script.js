@@ -1,6 +1,6 @@
 // ============================
 // INFINITY YouTube Player JS
-// Enhanced Version with Fixed Menu & History Titles
+// Enhanced Version with XP System Integration
 // ============================
 
 // --- Element References ---
@@ -20,6 +20,8 @@ const videoDuration = document.getElementById('video-duration');
 const videoViews = document.getElementById('video-views');
 const videoThumbnail = document.getElementById('video-thumbnail');
 const shareButton = document.getElementById('share-button') || document.createElement('button');
+const xpWatchingIndicator = document.getElementById('xp-watching-indicator');
+const xpWatchTime = document.getElementById('xp-watch-time');
 
 // Menu Elements
 const menuToggle = document.getElementById('menu-toggle');
@@ -34,6 +36,7 @@ const aboutMenuButton = document.getElementById('about-menu');
 const privacyMenuButton = document.getElementById('privacy-menu');
 const termsMenuButton = document.getElementById('terms-menu');
 const contactMenuButton = document.getElementById('contact-menu');
+const xpInfoMenuButton = document.getElementById('xp-info-menu');
 const menuHistory = document.getElementById('menu-history');
 
 // Modal Elements
@@ -64,6 +67,18 @@ if (window.YT && window.YT.loaded) {
     };
 }
 
+// --- XP System Integration ---
+let xpSystem = null;
+
+function initializeXPSystem() {
+    if (!window.xpSystem) {
+        console.log("⚠️ XP System not loaded yet");
+        return;
+    }
+    xpSystem = window.xpSystem;
+    console.log("✅ XP System integrated");
+}
+
 // --- Theme Management ---
 function initTheme() {
     document.body.classList.toggle('dark-mode', isDarkMode);
@@ -80,7 +95,7 @@ function toggleTheme() {
     showSuccess(isDarkMode ? "Dark theme enabled" : "Light theme enabled");
 }
 
-// --- Menu System (FIXED) ---
+// --- Menu System ---
 function toggleMenu() {
     if (isMenuOpen) {
         closeMenu();
@@ -210,7 +225,7 @@ async function fetchVideoMetadata(videoId) {
     }
 }
 
-// NEW FUNCTION: Update history with correct video data
+// Update history with correct video data
 function updateHistoryWithVideoData(videoId, videoData) {
     try {
         const history = JSON.parse(localStorage.getItem('videoHistory') || '[]');
@@ -255,7 +270,7 @@ async function fetchVideoDuration(videoId) {
     }
 }
 
-// NEW FUNCTION: Update history duration
+// Update history duration
 function updateHistoryDuration(videoId, duration) {
     try {
         const history = JSON.parse(localStorage.getItem('videoHistory') || '[]');
@@ -344,7 +359,7 @@ function updateCachedVideoDuration(videoId, duration) {
     }
 }
 
-// --- Menu History Management (UPDATED) ---
+// --- Menu History Management ---
 function updateMenuHistory() {
     const history = JSON.parse(localStorage.getItem('videoHistory') || '[]');
     menuHistory.innerHTML = '';
@@ -466,6 +481,11 @@ async function loadVideo() {
     videoViews.textContent = "0 views";
     videoThumbnail.innerHTML = '<div class="loading-spinner" style="width: 30px; height: 30px;"></div>';
     
+    // Hide XP watching indicator
+    if (xpWatchingIndicator) {
+        xpWatchingIndicator.style.display = 'none';
+    }
+    
     try {
         await saveToHistory(videoId, link);
         updateMenuHistory();
@@ -478,6 +498,12 @@ async function loadVideo() {
         requestWakeLock();
         updatePageURL(link);
         
+        // Start XP earning for this video
+        if (xpSystem) {
+            xpSystem.startWatching(videoId);
+            updateXPWatchTime();
+        }
+        
         menuToggle.classList.add('has-notification');
         setTimeout(() => menuToggle.classList.remove('has-notification'), 3000);
         
@@ -489,7 +515,16 @@ async function loadVideo() {
     }
 }
 
-// --- History Management (UPDATED) ---
+// Update XP watch time display
+function updateXPWatchTime() {
+    if (xpSystem && xpSystem.isWatching && xpWatchTime) {
+        const minutesWatched = Math.floor(xpSystem.minutesWatched);
+        xpWatchTime.textContent = minutesWatched;
+        xpWatchingIndicator.style.display = 'flex';
+    }
+}
+
+// History Management
 async function saveToHistory(videoId, url) {
     try {
         const history = JSON.parse(localStorage.getItem('videoHistory') || '[]');
@@ -520,8 +555,6 @@ async function saveToHistory(videoId, url) {
         console.error("Failed to save history:", error);
     }
 }
-
-// REMOVED: Old updateHistoryItemTitle function (replaced by updateHistoryWithVideoData)
 
 function clearHistory() {
     if (confirm("Are you sure you want to clear all video history?")) {
@@ -737,6 +770,12 @@ function handleKeyboardShortcuts(event) {
             event.preventDefault();
             if (shareButton) shareVideo();
             break;
+        case 'x':
+            event.preventDefault();
+            if (xpSystem) {
+                xpSystem.showXPInfo();
+            }
+            break;
         case 'enter':
             if (document.activeElement !== videoLinkInput) {
                 event.preventDefault();
@@ -801,12 +840,22 @@ function resetPlayer() {
     videoViews.textContent = "0 views";
     videoThumbnail.innerHTML = '<i class="fas fa-play"></i>';
     
+    // Hide XP watching indicator
+    if (xpWatchingIndicator) {
+        xpWatchingIndicator.style.display = 'none';
+    }
+    
     document.title = "INFINITY YouTube Player";
     
     const newUrl = new URL(window.location.href);
     const paramsToRemove = ['v', 'video', 'url', 'link', 'id', 'vid'];
     paramsToRemove.forEach(param => newUrl.searchParams.delete(param));
     window.history.replaceState({}, document.title, newUrl.toString());
+    
+    // Stop XP earning
+    if (xpSystem) {
+        xpSystem.stopWatching();
+    }
     
     releaseWakeLock();
     showSuccess("Player reset");
@@ -829,13 +878,15 @@ const modalContents = {
     about: `
         <div class="modal-section">
             <h4><i class="fas fa-infinity"></i> About INFINITY Player</h4>
-            <p>A privacy-focused YouTube player designed for distraction-free viewing experience.</p>
+            <p>A privacy-focused YouTube player designed for distraction-free viewing experience with XP rewards!</p>
         </div>
         
         <div class="modal-section">
             <h4><i class="fas fa-star"></i> Features</h4>
             <ul>
                 <li><strong>Privacy First:</strong> Uses YouTube's nocookie domain</li>
+                <li><strong>XP Rewards:</strong> Earn 1 XP per minute of video watched</li>
+                <li><strong>Withdraw Earnings:</strong> Convert XP to real money (300 XP = ₹30)</li>
                 <li><strong>Clean Interface:</strong> Minimal design, no distractions</li>
                 <li><strong>Video History:</strong> Track your recent videos with proper titles</li>
                 <li><strong>Smart Menu:</strong> Quick access to all features</li>
@@ -859,12 +910,13 @@ const modalContents = {
                 <span>LocalStorage</span>
                 <span>Wake Lock API</span>
                 <span>Web Share API</span>
+                <span>XP System</span>
             </div>
         </div>
         
         <div class="modal-signature">
             <p>Crafted with <i class="fas fa-heart"></i> by Shubham</p>
-            <p class="version">v2.2 • Fixed History Titles & Enhanced Features</p>
+            <p class="version">v3.0 • Added XP Rewards System</p>
         </div>
     `,
     
@@ -881,6 +933,7 @@ const modalContents = {
                 <li><strong>No Tracking:</strong> No cookies, analytics, or tracking scripts</li>
                 <li><strong>No History Sharing:</strong> Your watch history stays on your device</li>
                 <li><strong>No IP Logging:</strong> We don't store IP addresses or location data</li>
+                <li><strong>No XP Data Sharing:</strong> Your XP balance is stored locally only</li>
             </ul>
         </div>
         
@@ -888,10 +941,13 @@ const modalContents = {
             <h4><i class="fas fa-database"></i> What We Store Locally</h4>
             <ul>
                 <li><strong>Video History:</strong> Last 20 videos with titles and thumbnails</li>
+                <li><strong>XP Data:</strong> Your current XP balance and earning history</li>
+                <li><strong>Withdrawal Requests:</strong> Your pending withdrawal details</li>
                 <li><strong>Theme Preference:</strong> Your dark/light mode choice</li>
                 <li><strong>Video Cache:</strong> Temporary video metadata (24 hours)</li>
             </ul>
             <p class="note">All data is stored locally in your browser and never sent to any server.</p>
+            <p class="note warning">⚠️ Clearing browser data will delete all your XP points!</p>
         </div>
         
         <div class="modal-section">
@@ -922,12 +978,26 @@ const modalContents = {
         </div>
         
         <div class="modal-section">
+            <h4><i class="fas fa-coins"></i> XP Rewards Terms</h4>
+            <ul>
+                <li><strong>Earning Rate:</strong> 1 XP per minute of active video watching</li>
+                <li><strong>Minimum Withdrawal:</strong> 300 XP (₹30)</li>
+                <li><strong>Conversion Rate:</strong> 10 XP = ₹1</li>
+                <li><strong>Processing Time:</strong> 15-20 working days for withdrawals</li>
+                <li><strong>Data Storage:</strong> XP is stored locally - clearing browser data will delete all XP</li>
+                <li><strong>Eligibility:</strong> Only genuine watch time is counted</li>
+                <li><strong>Withdrawal Limits:</strong> One active withdrawal at a time</li>
+            </ul>
+        </div>
+        
+        <div class="modal-section">
             <h4><i class="fas fa-exclamation-triangle"></i> Usage Restrictions</h4>
             <ul>
                 <li><strong>Personal Use Only:</strong> For individual, non-commercial use</li>
                 <li><strong>No Bypassing:</strong> Do not use to bypass age or region restrictions</li>
                 <li><strong>Legal Content Only:</strong> Only watch legally available content</li>
                 <li><strong>No Abuse:</strong> Do not overload or abuse the service</li>
+                <li><strong>No Botting:</strong> No automated video watching for XP farming</li>
             </ul>
         </div>
         
@@ -940,6 +1010,8 @@ const modalContents = {
                 <li>YouTube policy changes</li>
                 <li>Video takedowns or copyright issues</li>
                 <li>Browser compatibility issues</li>
+                <li>XP data loss due to browser data clearing</li>
+                <li>Payment delays beyond our control</li>
             </ul>
         </div>
     `,
@@ -970,11 +1042,11 @@ const modalContents = {
             
             <div class="contact-card">
                 <div class="contact-icon">
-                    <i class="fas fa-code"></i>
+                    <i class="fas fa-envelope"></i>
                 </div>
-                <h5>GitHub</h5>
-                <a href="https://github.com/" target="_blank">
-                    View Projects
+                <h5>Email</h5>
+                <a href="mailto:shubhamPC7084@gmail.com">
+                    shubhamPC7084@gmail.com
                 </a>
             </div>
         </div>
@@ -982,9 +1054,10 @@ const modalContents = {
         <div class="modal-section">
             <h4><i class="fas fa-life-ring"></i> Support & Feedback</h4>
             <ul>
+                <li><strong>XP Issues:</strong> Report any XP calculation problems</li>
                 <li><strong>Bug Reports:</strong> DM on Instagram with details</li>
                 <li><strong>Feature Requests:</strong> We welcome suggestions</li>
-                <li><strong>Questions:</strong> Feel free to reach out</li>
+                <li><strong>Withdrawal Questions:</strong> Contact via email</li>
                 <li><strong>Feedback:</strong> Helps improve the player</li>
             </ul>
         </div>
@@ -1020,6 +1093,16 @@ function initializeEventListeners() {
         shortcutsModal.classList.add('show');
         closeMenu();
     });
+    
+    // XP Info menu button
+    if (xpInfoMenuButton) {
+        xpInfoMenuButton.addEventListener('click', () => {
+            if (xpSystem) {
+                xpSystem.showXPInfo();
+                closeMenu();
+            }
+        });
+    }
     
     // Info menu buttons
     aboutMenuButton.addEventListener('click', () => {
@@ -1078,6 +1161,57 @@ function initializeEventListeners() {
             if (!videoLinkInput.value) videoLinkInput.focus();
         }, 500);
     });
+    
+    // YouTube iframe event listeners for XP system
+    youtubeIframe.addEventListener('load', () => {
+        // Inject script to detect video state changes
+        try {
+            const iframeDoc = youtubeIframe.contentDocument || youtubeIframe.contentWindow.document;
+            const script = iframeDoc.createElement('script');
+            script.textContent = `
+                // Listen for YouTube player events
+                window.addEventListener('message', function(event) {
+                    if (event.data && event.data.event === 'infoDelivery') {
+                        if (event.data.info && event.data.info.currentTime !== undefined) {
+                            // Send play state to parent
+                            window.parent.postMessage({
+                                type: 'youtubeState',
+                                state: event.data.info.playerState,
+                                currentTime: event.data.info.currentTime,
+                                videoId: event.data.info.videoData ? event.data.info.videoData.video_id : null
+                            }, '*');
+                        }
+                    }
+                });
+            `;
+            iframeDoc.head.appendChild(script);
+        } catch (e) {
+            console.log("Could not inject script into iframe:", e);
+        }
+    });
+    
+    // Listen for YouTube state messages
+    window.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'youtubeState') {
+            if (xpSystem) {
+                switch (event.data.state) {
+                    case 1: // Playing
+                        xpSystem.startWatching(event.data.videoId);
+                        updateXPWatchTime();
+                        break;
+                    case 2: // Paused
+                        xpSystem.pauseWatching();
+                        break;
+                    case 0: // Ended
+                        xpSystem.stopWatching();
+                        if (xpWatchingIndicator) {
+                            xpWatchingIndicator.style.display = 'none';
+                        }
+                        break;
+                }
+            }
+        }
+    });
 }
 
 // --- Particles Background ---
@@ -1117,6 +1251,15 @@ function initParticles() {
     }
 }
 
+// --- XP Watch Time Update Timer ---
+function startXPWatchTimer() {
+    setInterval(() => {
+        if (xpSystem && xpSystem.isWatching) {
+            updateXPWatchTime();
+        }
+    }, 30000); // Update every 30 seconds
+}
+
 // --- Initialization ---
 function init() {
     initializeEventListeners();
@@ -1127,6 +1270,12 @@ function init() {
     sidebar.style.display = 'none';
     menuOverlay.style.display = 'none';
     
+    // Initialize XP System
+    setTimeout(() => {
+        initializeXPSystem();
+        startXPWatchTimer();
+    }, 1000);
+    
     // Auto-load from URL
     setTimeout(() => {
         const loaded = autoLoadFromURL();
@@ -1135,10 +1284,9 @@ function init() {
         }
     }, 500);
     
-    console.log("INFINITY Player v2.2 initialized");
-    console.log("Features: YouTube API, Video Metadata, Enhanced Menu, Real-time Info");
-    console.log("Fixed: History titles now show actual video titles instead of 'Loading...'");
-    console.log("New Features: Auto-load from URL, Share functionality, Duration in history");
+    console.log("INFINITY Player v3.0 initialized");
+    console.log("Features: YouTube API, Video Metadata, Enhanced Menu, Real-time Info, XP Rewards System");
+    console.log("XP System: 1 XP per minute, Minimum withdrawal: 300 XP (₹30)");
     console.log("Theme: " + (isDarkMode ? "Dark" : "Light"));
     console.log("History Items: " + (JSON.parse(localStorage.getItem('videoHistory') || '[]').length));
     console.log("Menu: Closed by default");
