@@ -4,16 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>INFINITY YouTube Player</title>
-    <meta name="description" content="A privacy-focused YouTube player with minimal interface for better focus and content viewing. Earn XP while watching videos!">
+    <meta name="description" content="A privacy-focused YouTube player with minimal interface for better focus and content viewing.">
     <meta name="theme-color" content="#00e0ff">
     <meta name="author" content="Shubham" />
     <meta property="og:title" content="INFINITY YouTube Player — Minimal Interface" />
-    <meta property="og:description" content="A privacy-focused YouTube player using nocookie mode. Minimal interface for focused viewing. Earn XP rewards!" />
+    <meta property="og:description" content="A privacy-focused YouTube player using nocookie mode. Minimal interface for focused viewing." />
     <meta property="og:image" content="https://static.pw.live/5b09189f7285894d9130ccd0/59794d57-bb52-4efb-aba4-f0519a16fc7e.png" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://shminfinity.fun/">
     
-    <!-- Updated Content Security Policy -->
+    <!-- FIXED: Updated Content Security Policy for Font Awesome -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self'; 
         script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.youtube.com; 
@@ -21,7 +21,7 @@
         img-src 'self' https: data: blob:; 
         frame-src https://www.youtube-nocookie.com https://www.youtube.com; 
         font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:;
-        connect-src 'self' https://www.youtube.com https://noembed.com https://img.youtube.com https://formsubmit.co;
+        connect-src 'self' https://www.youtube.com https://noembed.com https://img.youtube.com;
     ">
     
     <!-- YouTube API -->
@@ -32,7 +32,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome -->
+    <!-- FIXED: Use specific Font Awesome version with correct integrity hash -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
           integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
           crossorigin="anonymous" referrerpolicy="no-referrer">
@@ -77,9 +77,6 @@
                 </a>
             </div>
         </div>
-
-        <!-- XP Rewards Section (Dynamically Added) -->
-        <div id="xp-section-placeholder"></div>
 
         <div class="menu-section">
             <h4><i class="fas fa-history"></i> Recent Videos</h4>
@@ -129,10 +126,6 @@
                     <i class="fas fa-envelope"></i>
                     <span>Contact & Support</span>
                 </button>
-                <button class="menu-option" id="xp-info-menu">
-                    <i class="fas fa-coins"></i>
-                    <span>XP Rewards Guide</span>
-                </button>
             </div>
         </div>
 
@@ -179,11 +172,6 @@
                         <span class="separator">•</span>
                         <span id="video-views">0 views</span>
                     </div>
-                    <!-- XP Watching Indicator -->
-                    <div id="xp-watching-indicator" class="xp-watching-indicator">
-                        <i class="fas fa-coins"></i>
-                        <span>Earning XP: <span id="xp-watch-time">0</span> min</span>
-                    </div>
                 </div>
                 <button class="copy-link" id="copy-link" aria-label="Copy video link">
                     <i class="fas fa-link"></i>
@@ -225,9 +213,9 @@
                 <span>PiP</span>
             </button>
             <button class="share-btn" id="share-button" aria-label="Share Video">
-                <i class="fas fa-share-alt"></i>
-                <span>Share</span>
-            </button>
+    <i class="fas fa-share-alt"></i>
+    <span>Share</span>
+</button>
         </div>
     </div>
 
@@ -273,10 +261,6 @@
                     <span>Copy Link</span>
                 </div>
                 <div class="shortcut-item">
-                    <kbd>X</kbd>
-                    <span>XP Info</span>
-                </div>
-                <div class="shortcut-item">
                     <kbd>H</kbd>
                     <span>History (in menu)</span>
                 </div>
@@ -292,9 +276,8 @@
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- FIXED: Updated script sources -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script src="script.js"></script>
-    <script src="xp-system.js"></script>
 </body>
 </html>
