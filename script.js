@@ -1,6 +1,6 @@
 // ============================
 // INFINITY YouTube Player JS
-// Enhanced Version with Fixed Menu & History Titles
+// Enhanced Version with Minimal YouTube Interface
 // ============================
 
 // --- Element References ---
@@ -64,6 +64,27 @@ if (window.YT && window.YT.loaded) {
     };
 }
 
+// --- Generate Minimal YouTube Embed URL ---
+function getMinimalYouTubeEmbedUrl(videoId) {
+    const params = new URLSearchParams({
+        autoplay: 1,
+        rel: 0,                 // Don't show related videos
+        modestbranding: 1,      // Hide YouTube logo
+        controls: 1,            // Show controls
+        showinfo: 0,            // Hide video title and uploader
+        iv_load_policy: 3,      // Hide annotations
+        fs: 1,                  // Allow fullscreen
+        playsinline: 1,         // Play inline on mobile
+        disablekb: 0,           // Keep keyboard controls
+        enablejsapi: 0,         // Disable JS API for cleaner interface
+        origin: window.location.origin,
+        widget_referrer: window.location.origin,
+        color: 'white'          // White progress bar (less intrusive)
+    });
+    
+    return `https://www.youtube-nocookie.com/embed/${videoId}?${params.toString()}`;
+}
+
 // --- Theme Management ---
 function initTheme() {
     document.body.classList.toggle('dark-mode', isDarkMode);
@@ -80,7 +101,7 @@ function toggleTheme() {
     showSuccess(isDarkMode ? "Dark theme enabled" : "Light theme enabled");
 }
 
-// --- Menu System (FIXED) ---
+// --- Menu System ---
 function toggleMenu() {
     if (isMenuOpen) {
         closeMenu();
@@ -92,14 +113,11 @@ function toggleMenu() {
 function openMenu() {
     isMenuOpen = true;
     
-    // First set display to block for overlay
     menuOverlay.style.display = 'block';
     sidebar.style.display = 'flex';
     
-    // Force reflow to ensure CSS transition works
     void sidebar.offsetWidth;
     
-    // Add show classes to trigger animations
     setTimeout(() => {
         sidebar.classList.add('show');
         menuOverlay.classList.add('show');
@@ -119,12 +137,10 @@ function closeMenu() {
     
     isMenuOpen = false;
     
-    // Remove show classes to trigger closing animations
     sidebar.classList.remove('show');
     menuOverlay.classList.remove('show');
     menuToggle.classList.remove('open');
     
-    // Wait for animation to complete before hiding
     setTimeout(() => {
         sidebar.style.display = 'none';
         menuOverlay.style.display = 'none';
@@ -164,7 +180,6 @@ async function fetchVideoMetadata(videoId) {
         const cachedData = getCachedVideoData(videoId);
         if (cachedData) {
             updateVideoInfoUI(cachedData);
-            // Update history with correct title if needed
             updateHistoryWithVideoData(videoId, cachedData);
             apiLoadingElement.style.display = 'none';
             return;
@@ -189,7 +204,6 @@ async function fetchVideoMetadata(videoId) {
         
         cacheVideoData(videoId, videoData);
         updateVideoInfoUI(videoData);
-        // Update history with the fetched title
         updateHistoryWithVideoData(videoId, videoData);
         await fetchVideoDuration(videoId);
         
@@ -203,28 +217,24 @@ async function fetchVideoMetadata(videoId) {
             views: "N/A"
         };
         updateVideoInfoUI(fallbackData);
-        // Still try to update history with fallback title
         updateHistoryWithVideoData(videoId, fallbackData);
     } finally {
         apiLoadingElement.style.display = 'none';
     }
 }
 
-// NEW FUNCTION: Update history with correct video data
 function updateHistoryWithVideoData(videoId, videoData) {
     try {
         const history = JSON.parse(localStorage.getItem('videoHistory') || '[]');
         const itemIndex = history.findIndex(item => item.id === videoId);
         
         if (itemIndex > -1) {
-            // Update the history item with actual data
             history[itemIndex].title = videoData.title || "Unknown Video";
             history[itemIndex].author = videoData.author || "YouTube";
             history[itemIndex].thumbnail = videoData.thumbnail_small || `https://img.youtube.com/vi/${videoId}/default.jpg`;
             
             localStorage.setItem('videoHistory', JSON.stringify(history));
             
-            // Update menu if it's open
             if (isMenuOpen) {
                 updateMenuHistory();
             }
@@ -245,8 +255,6 @@ async function fetchVideoDuration(videoId) {
             if (data.duration) {
                 updateCachedVideoDuration(videoId, data.duration);
                 videoDuration.textContent = formatDuration(data.duration);
-                
-                // Also update history duration
                 updateHistoryDuration(videoId, data.duration);
             }
         }
@@ -255,7 +263,6 @@ async function fetchVideoDuration(videoId) {
     }
 }
 
-// NEW FUNCTION: Update history duration
 function updateHistoryDuration(videoId, duration) {
     try {
         const history = JSON.parse(localStorage.getItem('videoHistory') || '[]');
@@ -344,7 +351,7 @@ function updateCachedVideoDuration(videoId, duration) {
     }
 }
 
-// --- Menu History Management (UPDATED) ---
+// --- Menu History Management ---
 function updateMenuHistory() {
     const history = JSON.parse(localStorage.getItem('videoHistory') || '[]');
     menuHistory.innerHTML = '';
@@ -363,7 +370,6 @@ function updateMenuHistory() {
         const historyItem = document.createElement('div');
         historyItem.className = 'history-item-menu';
         
-        // Use the actual title from history, not "Loading..."
         const displayTitle = item.title === "Loading..." ? "Unknown Video" : item.title;
         
         historyItem.innerHTML = `
@@ -471,10 +477,11 @@ async function loadVideo() {
         updateMenuHistory();
         await fetchVideoMetadata(videoId);
         
-        const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&controls=1`;
+        // Use minimal YouTube embed URL
+        const embedUrl = getMinimalYouTubeEmbedUrl(videoId);
         youtubeIframe.src = embedUrl;
         
-        showSuccess("Video loaded successfully");
+        showSuccess("Video loaded successfully with minimal interface");
         requestWakeLock();
         updatePageURL(link);
         
@@ -489,24 +496,21 @@ async function loadVideo() {
     }
 }
 
-// --- History Management (UPDATED) ---
+// --- History Management ---
 async function saveToHistory(videoId, url) {
     try {
         const history = JSON.parse(localStorage.getItem('videoHistory') || '[]');
         const existingIndex = history.findIndex(item => item.id === videoId);
         
         if (existingIndex > -1) {
-            // Move existing item to top
             const existingItem = history.splice(existingIndex, 1)[0];
             existingItem.timestamp = new Date().toISOString();
-            // Don't overwrite the title if we already have it
             history.unshift(existingItem);
         } else {
-            // Add new item with placeholder title
             history.unshift({
                 id: videoId,
                 url: url,
-                title: "Loading...", // Placeholder that will be updated
+                title: "Loading...",
                 thumbnail: `https://img.youtube.com/vi/${videoId}/default.jpg`,
                 timestamp: new Date().toISOString(),
                 duration: null
@@ -520,8 +524,6 @@ async function saveToHistory(videoId, url) {
         console.error("Failed to save history:", error);
     }
 }
-
-// REMOVED: Old updateHistoryItemTitle function (replaced by updateHistoryWithVideoData)
 
 function clearHistory() {
     if (confirm("Are you sure you want to clear all video history?")) {
@@ -546,7 +548,6 @@ async function copyVideoLink() {
         await navigator.clipboard.writeText(textToCopy);
         showSuccess("Video links copied to clipboard");
     } catch (error) {
-        // Fallback for older browsers
         const textArea = document.createElement('textarea');
         const playerUrl = `${window.location.origin}${window.location.pathname}?v=${currentVideoId}`;
         textArea.value = playerUrl;
@@ -633,11 +634,9 @@ function autoLoadFromURL() {
     let videoId = params.get('v') || params.get('video') || params.get('id') || params.get('vid');
     
     if (videoId) {
-        // Check if it's already a video ID or a full URL
         const isFullUrl = videoId.includes('youtube.com') || videoId.includes('youtu.be');
         
         if (isFullUrl) {
-            // Extract video ID from full URL
             videoId = getYouTubeVideoId(videoId);
         }
         
@@ -665,11 +664,9 @@ function updatePageURL(url) {
         if (videoId) {
             const newUrl = new URL(window.location.href);
             
-            // Remove all video-related parameters
             const paramsToRemove = ['v', 'video', 'url', 'link', 'id', 'vid'];
             paramsToRemove.forEach(param => newUrl.searchParams.delete(param));
             
-            // Set only the video ID as parameter
             newUrl.searchParams.set('v', videoId);
             
             window.history.replaceState({}, document.title, newUrl.toString());
@@ -837,6 +834,7 @@ const modalContents = {
             <ul>
                 <li><strong>Privacy First:</strong> Uses YouTube's nocookie domain</li>
                 <li><strong>Clean Interface:</strong> Minimal design, no distractions</li>
+                <li><strong>Minimal YouTube UI:</strong> Hidden YouTube branding and related videos</li>
                 <li><strong>Video History:</strong> Track your recent videos with proper titles</li>
                 <li><strong>Smart Menu:</strong> Quick access to all features</li>
                 <li><strong>Keyboard Shortcuts:</strong> Faster navigation</li>
@@ -864,7 +862,7 @@ const modalContents = {
         
         <div class="modal-signature">
             <p>Crafted with <i class="fas fa-heart"></i> by Shubham</p>
-            <p class="version">v2.2 • Fixed History Titles & Enhanced Features</p>
+            <p class="version">v2.3 • Minimal YouTube Interface</p>
         </div>
     `,
     
@@ -896,11 +894,13 @@ const modalContents = {
         
         <div class="modal-section">
             <h4><i class="fab fa-youtube"></i> YouTube Integration</h4>
-            <p>Videos load from <code>youtube-nocookie.com</code> which:</p>
+            <p>Videos load from <code>youtube-nocookie.com</code> with minimal UI parameters:</p>
             <ul>
+                <li><strong>modestbranding=1</strong> - Hides YouTube logo</li>
+                <li><strong>rel=0</strong> - No related videos at the end</li>
+                <li><strong>showinfo=0</strong> - No video title overlay</li>
+                <li><strong>iv_load_policy=3</strong> - No annotations</li>
                 <li>Doesn't set tracking cookies until you interact</li>
-                <li>Respects YouTube's privacy settings</li>
-                <li>Follows Google's privacy guidelines</li>
             </ul>
         </div>
     `,
@@ -997,31 +997,25 @@ const modalContents = {
 
 // --- Event Listeners ---
 function initializeEventListeners() {
-    // Initialize theme
     initTheme();
     
-    // Theme toggle
     themeMenuToggle.addEventListener('click', toggleTheme);
     
-    // Video loading
     playButton.addEventListener('click', loadVideo);
     videoLinkInput.addEventListener('keypress', e => {
         if (e.key === 'Enter') loadVideo();
     });
     
-    // Menu system
     menuToggle.addEventListener('click', toggleMenu);
     closeMenuButton.addEventListener('click', closeMenu);
     menuOverlay.addEventListener('click', closeMenu);
     
-    // Menu buttons
     clearHistoryButton.addEventListener('click', clearHistory);
     shortcutsHelpButton.addEventListener('click', () => {
         shortcutsModal.classList.add('show');
         closeMenu();
     });
     
-    // Info menu buttons
     aboutMenuButton.addEventListener('click', () => {
         showModal('About INFINITY Player', modalContents.about);
         closeMenu();
@@ -1042,20 +1036,16 @@ function initializeEventListeners() {
         closeMenu();
     });
     
-    // Main controls
     fullscreenButton.addEventListener('click', toggleFullscreen);
     resetButton.addEventListener('click', resetPlayer);
     copyLinkButton.addEventListener('click', copyVideoLink);
     
-    // Share button (if exists)
     if (shareButton && shareButton.id === 'share-button') {
         shareButton.addEventListener('click', shareVideo);
     }
     
-    // Keyboard shortcuts
     document.addEventListener('keydown', handleKeyboardShortcuts);
     
-    // Modal controls
     closeModalButtons.forEach(btn => {
         btn.addEventListener('click', closeModals);
     });
@@ -1066,13 +1056,11 @@ function initializeEventListeners() {
         });
     });
     
-    // Wake lock release
     window.addEventListener('beforeunload', releaseWakeLock);
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') releaseWakeLock();
     });
     
-    // Auto-focus input on page load
     window.addEventListener('load', () => {
         setTimeout(() => {
             if (!videoLinkInput.value) videoLinkInput.focus();
@@ -1123,11 +1111,9 @@ function init() {
     initParticles();
     updateMenuHistory();
     
-    // Make sure menu starts closed
     sidebar.style.display = 'none';
     menuOverlay.style.display = 'none';
     
-    // Auto-load from URL
     setTimeout(() => {
         const loaded = autoLoadFromURL();
         if (!loaded) {
@@ -1135,13 +1121,11 @@ function init() {
         }
     }, 500);
     
-    console.log("INFINITY Player v2.2 initialized");
-    console.log("Features: YouTube API, Video Metadata, Enhanced Menu, Real-time Info");
-    console.log("Fixed: History titles now show actual video titles instead of 'Loading...'");
-    console.log("New Features: Auto-load from URL, Share functionality, Duration in history");
+    console.log("INFINITY Player v2.3 initialized");
+    console.log("Features: Minimal YouTube Interface, Video Metadata, Enhanced Menu");
+    console.log("YouTube UI: Hidden branding, no related videos, clean controls only");
     console.log("Theme: " + (isDarkMode ? "Dark" : "Light"));
     console.log("History Items: " + (JSON.parse(localStorage.getItem('videoHistory') || '[]').length));
-    console.log("Menu: Closed by default");
 }
 
 // Start the application
